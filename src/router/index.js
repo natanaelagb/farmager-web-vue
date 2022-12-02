@@ -30,8 +30,10 @@ const router = new Router({
       route('Icons', null, 'components/icons'),
       route('Typography', null, 'components/typography'),
 
-      // Tables
-      route('Regular Tables', null, 'tables/regular'),
+      // Gerenciamento
+      route('Gerenciar Animais', null, 'gerenciar/animais'),
+      route('Gerenciar Funcionarios', null, 'gerenciar/funcionarios'),
+      route('Login', null, 'login'),
 
       // Maps
       route('Google Maps', null, 'maps/google'),

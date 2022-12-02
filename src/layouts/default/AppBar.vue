@@ -24,8 +24,6 @@
 
     <v-spacer />
 
-    <default-search class="hidden-sm-and-down" />
-
     <default-go-home />
 
     <default-notifications />
@@ -57,10 +55,6 @@
       DefaultNotifications: () => import(
         /* webpackChunkName: "default-notifications" */
         './widgets/Notifications'
-      ),
-      DefaultSearch: () => import(
-        /* webpackChunkName: "default-search" */
-        './widgets/Search'
       ),
     },
 

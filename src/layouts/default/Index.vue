@@ -1,14 +1,14 @@
 <template>
   <v-app>
-    <default-bar />
+    <default-bar v-if="!$route.path.includes('login')"/>
 
-    <default-drawer />
+    <default-drawer v-if="!$route.path.includes('login')"/>
 
     <default-view />
 
     <default-footer />
 
-    <default-settings />
+    <default-settings v-if="!$route.path.includes('login')"/>
   </v-app>
 </template>
 

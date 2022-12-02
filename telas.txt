@@ -1,0 +1,9 @@
+Telas
+
+Login
+Registros de animais
+Cadastro/edição de animal
+Registro de funcionários
+Cadastro/edição de funcionário
+Registros de movimentação financeira
+Cadastramento/edição de movimentação financeira
