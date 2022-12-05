@@ -33,6 +33,7 @@ const router = new Router({
       // Gerenciamento
       route('Gerenciar Animais', null, 'gerenciar/animais'),
       route('Gerenciar Funcionarios', null, 'gerenciar/funcionarios'),
+      route('Gerenciar Producao', null, 'gerenciar/producao'),
       route('Login', null, 'login'),
 
       // Maps

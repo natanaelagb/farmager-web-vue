@@ -1,19 +1,15 @@
 <template>
-  <v-container
-    id="regular-tables-view"
-    fluid
-    tag="section"
+  <v-dialog
+    v-model="dialogOcurrenceComputed"
+    max-width="1000px"
   >
-    <view-intro
-      heading="Gerenciar Funcionários"
-    />
-    <!-- icon="mdi-clipboard-text" -->
-    <v-card
+    <v-container
+    fluid
     >
+    <!-- icon="mdi-clipboard-text" -->
+    <v-card>
 
-      <v-card-title
-      
-      >
+      <v-card-title>
         <v-dialog
           v-model="dialog"
           persistent
@@ -35,14 +31,14 @@
             </v-btn>
 
             <h2 class="text-h4 ml-4 mt-n4">
-              Cadastrar Funcionarios
+              Cadastrar Ocorrencias
             </h2>
             
           
           </template>
           <v-card>
             <v-card-title>
-              <span class="text-h5">{{editMod ? "Cadastrar" : "Atualizar"}} Animal</span>
+              <span class="text-h5">{{editMod ? "Cadastrar" : "Atualizar"}} Ocorrencia</span>
             </v-card-title>
             <v-card-text>
               <v-container>
@@ -53,73 +49,22 @@
                     md="6"
                   >
                     <v-text-field
-                      label="Nome*"
-                      v-model="form.nome"
-                      hint="Fulano de Tal"
+                      label="ID animal*"
+                      v-model="form.id_animal"
                       required
                     ></v-text-field>
                   </v-col>
-                  <v-col
-                    cols="12"
-                    sm="6"
-                    md="6"
-                  >
-                    <v-text-field
-                      label="Email*"
-                      v-model="form.email"
-                      hint="fulano@gmail.com"
-                      required
-                      type="email"
-                      validate-on-blur
-                    ></v-text-field>
-                  </v-col>
 
-                  <v-col
-                    cols="12"
-                    sm="6"
-                    md="6"
-                  >
-                    <v-text-field
-                      label="Senha*"
-                      v-model="form.senha"
-                      hint="admin"
-                      required
-                      type="password"
-                      
-                    ></v-text-field>
-                  </v-col>
-
-
-                  <v-col
-                    cols="12"
-                    sm="6"
-                    md="6"
-                  >
-                    <v-select
-                      label="Cargo*"
-                      v-model="form.cargo"
-                      :items="cargos"
-                      required
-                    ></v-select>
-                  </v-col>
-
-                  <v-col 
-                    cols="12"
-                    sm="6"
-                    md="6"
-                  >
-                    <v-text-field
-                      label="Salario"
-                      v-model="form.salario"
-                      hint="2000.00R$"
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      required
-                    ></v-text-field>
-                  </v-col>
                  
-                 
+                 <v-col
+                    cols="12"
+                    sm="6"
+                    md="6"
+                 >
+                  <v-textarea
+                    v-model="form.ocorrencia"
+                  ></v-textarea>
+                 </v-col>
                  
                 </v-row>
               </v-container>
@@ -145,14 +90,12 @@
           </v-card>
         </v-dialog>
       </v-card-title>
-
-      <FiltrarBusca :headers="headers"  @exportar-dados="exportarDados"></FiltrarBusca>
-
+      <FiltrarBusca :headers="headers" @exportar-dados="exportarDados"></FiltrarBusca>
       <v-data-table
       :fixed-header="true"
       :headers="headers"
       :items="items"
-      :items-per-page="5"
+      :items-per-page="10"
       >
       <template #item="props">
         <tr>
@@ -160,18 +103,9 @@
             {{props.item.id}}
           </td>
           <td class="text-start">
-            {{props.item.nome}}
+            {{props.item.ocorrencia}}
           </td>
-          <td class="text-start">
-            {{props.item.email}}
-          </td>
-          <td class="text-start">
-            {{props.item.cargo}}
-          </td>
-          <td class="text-start">
-            {{props.item.salario}}
-          </td>
-
+          
           <td>
             <v-btn
               icon
@@ -203,7 +137,15 @@
 
     </v-card>
 
-  </v-container>
+    <v-btn
+      color="primary"
+      text
+      @click="fecharOcorrencias"
+    >
+      Fechar
+    </v-btn>
+    </v-container>
+  </v-dialog>
 </template>
 
 <script>
@@ -211,58 +153,52 @@
   import FiltrarBusca from '../components/FiltrarBusca.vue'
   import ConfirmDialog from '../components/ConfirmDialog.vue'
   import {vm} from "@/main.js"
+import { upperFirst } from 'vuetify/lib/util/helpers'
   export default {
-    name: 'GerenciarFuncionarios',
+    name: 'GerenciarOcorrencias',
     components: {
       FiltrarBusca,
       ConfirmDialog,
     },
     data: ()=>{
       return {
-        cargos: [
-          {text:'Gerente', value:'Gerente'}, 
-          {text:'Administrador', value:'Administrador'}, 
-          {text:'Funcionario', value:'Funcionario'},
-        ],
+        
         headers:[
-          {text:'Id', value: 'id'},
-          {text:'Nome', value: 'nome'},
-          {text:'Email', value: 'email'},
-          {text:'Cargo', value: 'cargo'},
-          {text:'Salário', value: 'salario'},
+          {text:'ID Animal', value: 'id_animal'},
+          {text:'Ocorrência', value: 'ocorrencia'},
           {text:"Acoes"}
-
         ],
         simpleHeadersText: [],
         simpleHeadersValue: [],
-        items: 
-          mydb.usuarios
+        items: []
+          
         ,
         form: {
-          id:"",
-          nome:"",
-          email:"",
-          senha:"",
-          cargo: "",
-          salario: "",
+          id_animal:"",
+          ocorrencia:"",
         },
         editMod: true,
         dialog: false,
-        currentId: 3, 
+        currentId: 5, 
         callDialog: false,
         dialogId: 0,
+      }
+    },
+    props: {
+      dialogOcurrence: Boolean,
+      id_animal: Number,
+    },
+    computed: {
+      dialogOcurrenceComputed() {
+        return this.dialogOcurrence
       }
     },
     methods: {
       editar(element) {
         this.editMod = false
         
-        this.form.id = element.id
-        this.form.nome = element.nome
-        this.form.email = element.email
-        this.form.senha = element.senha
-        this.form.cargo = element.cargo
-        this.form.salario = element.salario
+        this.form.id = element.id_animal
+        this.form.ocorrencia = element.ocorrencia
 
         this.dialog = true
 
@@ -271,23 +207,16 @@
         this.dialog = false; 
         this.editMod = true;
         this.form =  {
-          id:"",
-          nome:"",
-          email:"",
-          senha:"",
-          cargo: "",
-          salario: "",
+          id_animal:"",
+          ocorrencia:"",
+
         }
       },
       atualizar() {
         let id = this.form.id -1
         console.log(this.items[id], this.form)
 
-        this.items[id].nome = this.form.nome
-        this.items[id].email = this.form.email
-        this.items[id].senha = this.form.senha
-        this.items[id].cargo = this.form.cargo
-        this.items[id].salario = this.form.salario
+        this.items[id].ocorrencia = this.form.ocorrencia
 
         this.dialog = false
         this.editMod = true
@@ -298,7 +227,6 @@
         element.id = this.currentId + 1
         this.items.push(element)
         this.dialog = false
-        this
       },
       deletar($event) {
         console.log(this.items[$event.id-1])
@@ -311,9 +239,10 @@
         this.dialogId = id
         this.callDialog = true
       },
+      
       exportarDados() {
         let dados = []
-        console.log("GerenciarProdutos")
+        console.log("GerenciarOcorrencias")
         for (let index = 0; index < this.items.length; index++) {
           let el = [];
           this.simpleHeadersValue.slice(0,-1).forEach(field=>{
@@ -324,15 +253,24 @@
         }
         console.log(dados)
 
-        vm.$emit("ExportarPDF", "gerenciar_funcionarios",this.simpleHeadersText.slice(0,-1), dados)
+        vm.$emit("ExportarPDF", "gerenciar_ocorrencias",this.simpleHeadersText.slice(0,-1), dados)
+      },
+      fecharOcorrencias() {
+        this.dialogOcurrence = false
       }
 
     },
     created() {
-     console.log(mydb)
-     this.headers.forEach(element=> {
+      console.log(mydb)
+      this.headers.forEach(element=> {
         this.simpleHeadersText.push(element.text)
         this.simpleHeadersValue.push(element.value)
+      })
+
+      mydb.ocorrencias.forEach(element => {
+        if(element.id == this.id_animal) {
+          this.items.push(element)
+        }
       })
     }
   }

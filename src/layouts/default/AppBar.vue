@@ -26,7 +26,7 @@
 
     <default-go-home />
 
-    <default-notifications />
+    <!-- <default-notifications /> -->
 
     <default-account />
   </v-app-bar>

@@ -68,7 +68,7 @@
       ]),
     },
     created () {
-      console.log(this.props)
+      // console.log(this.props)
     }
   }
 </script>

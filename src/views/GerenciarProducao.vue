@@ -5,7 +5,7 @@
     tag="section"
   >
     <view-intro
-      heading="Gerenciar Funcionários"
+      heading="Gerenciar Produção"
     />
     <!-- icon="mdi-clipboard-text" -->
     <v-card
@@ -35,7 +35,7 @@
             </v-btn>
 
             <h2 class="text-h4 ml-4 mt-n4">
-              Cadastrar Funcionarios
+              Cadastrar Produção
             </h2>
             
           
@@ -52,73 +52,70 @@
                     sm="6"
                     md="6"
                   >
-                    <v-text-field
-                      label="Nome*"
-                      v-model="form.nome"
-                      hint="Fulano de Tal"
+                    <v-autocomplete
+                      label="ID Animal*"
+                      v-model="form.id_animal"
+                      :items="animais_cadastrados"
+                      hint="Animal 1"
                       required
-                    ></v-text-field>
+                    ></v-autocomplete>
                   </v-col>
+
+                  
+                  <v-col
+                    cols="12"
+                    sm="6"
+                    md="6"
+                  >
+                    <v-autocomplete
+                      label="Produto*"
+                      v-model="form.produto"
+                      :items="produtos"
+                      required
+                    ></v-autocomplete>
+                  </v-col>
+
                   <v-col
                     cols="12"
                     sm="6"
                     md="6"
                   >
                     <v-text-field
-                      label="Email*"
-                      v-model="form.email"
-                      hint="fulano@gmail.com"
+                      label="Quantidade*"
+                      v-model="form.quantidade"
+                      hint="10 Unidades"
                       required
-                      type="email"
-                      validate-on-blur
-                    ></v-text-field>
-                  </v-col>
-
-                  <v-col
-                    cols="12"
-                    sm="6"
-                    md="6"
-                  >
-                    <v-text-field
-                      label="Senha*"
-                      v-model="form.senha"
-                      hint="admin"
-                      required
-                      type="password"
-                      
-                    ></v-text-field>
-                  </v-col>
-
-
-                  <v-col
-                    cols="12"
-                    sm="6"
-                    md="6"
-                  >
-                    <v-select
-                      label="Cargo*"
-                      v-model="form.cargo"
-                      :items="cargos"
-                      required
-                    ></v-select>
-                  </v-col>
-
-                  <v-col 
-                    cols="12"
-                    sm="6"
-                    md="6"
-                  >
-                    <v-text-field
-                      label="Salario"
-                      v-model="form.salario"
-                      hint="2000.00R$"
                       type="number"
-                      step="0.1"
                       min="0"
-                      required
                     ></v-text-field>
                   </v-col>
-                 
+
+                  <v-col
+                    cols="12"
+                    sm="6"
+                    md="6"
+                  >
+                    <v-autocomplete
+                      label="Unidade*"
+                      v-model="form.unidade"
+                      :items="unidades"
+                      hint="Litro"
+                      required
+
+                    ></v-autocomplete>
+                  </v-col>
+
+
+                  <v-col
+                    cols="12"
+                    sm="12"
+                    md="12"
+                  >
+                    <v-textarea
+                      label="Observação"
+                      v-model="form.observacao"
+                    ></v-textarea>
+                  </v-col>                 
                  
                  
                 </v-row>
@@ -146,7 +143,7 @@
         </v-dialog>
       </v-card-title>
 
-      <FiltrarBusca :headers="headers"  @exportar-dados="exportarDados"></FiltrarBusca>
+      <FiltrarBusca :headers="headers" @exportar-dados="exportarDados"></FiltrarBusca>
 
       <v-data-table
       :fixed-header="true"
@@ -160,16 +157,19 @@
             {{props.item.id}}
           </td>
           <td class="text-start">
-            {{props.item.nome}}
+            {{props.item.id_animal}}
           </td>
           <td class="text-start">
-            {{props.item.email}}
+            {{props.item.quantidade}}
           </td>
           <td class="text-start">
-            {{props.item.cargo}}
+            {{props.item.unidade}}
           </td>
           <td class="text-start">
-            {{props.item.salario}}
+            {{props.item.observacao}}
+          </td>
+          <td class="text-start">
+            {{props.item.criado_em}}
           </td>
 
           <td>
@@ -212,43 +212,44 @@
   import ConfirmDialog from '../components/ConfirmDialog.vue'
   import {vm} from "@/main.js"
   export default {
-    name: 'GerenciarFuncionarios',
+    name: 'GerenciarProducao',
     components: {
       FiltrarBusca,
       ConfirmDialog,
     },
     data: ()=>{
       return {
-        cargos: [
-          {text:'Gerente', value:'Gerente'}, 
-          {text:'Administrador', value:'Administrador'}, 
-          {text:'Funcionario', value:'Funcionario'},
+        unidades: [
+          {text:'Kg', value:'Kg'}, 
+          {text:'Litro', value:'Litro'}, 
+          {text:'Unidade', value:'Unidade'},
         ],
+        produtos: mydb.produtos,
         headers:[
-          {text:'Id', value: 'id'},
-          {text:'Nome', value: 'nome'},
-          {text:'Email', value: 'email'},
-          {text:'Cargo', value: 'cargo'},
-          {text:'Salário', value: 'salario'},
+          {text:'ID', value: 'id'},
+          {text:'ID Animal', value: 'id_animal'},
+          {text:'Quantidade', value: 'quantidade'},
+          {text:'Unidade', value: 'unidade'},
+          {text:'Observações', value: 'observacao'},
+          {text:'Data', value: 'criado_em'},
           {text:"Acoes"}
-
         ],
         simpleHeadersText: [],
         simpleHeadersValue: [],
         items: 
-          mydb.usuarios
+          mydb.produtos_hst
         ,
         form: {
           id:"",
-          nome:"",
-          email:"",
-          senha:"",
-          cargo: "",
-          salario: "",
+          id_animal:"",
+          quantidade:"",
+          unidade:"",
+          observacao: "",
+          criado_em: "",
         },
         editMod: true,
         dialog: false,
-        currentId: 3, 
+        currentId: 5, 
         callDialog: false,
         dialogId: 0,
       }
@@ -258,11 +259,11 @@
         this.editMod = false
         
         this.form.id = element.id
-        this.form.nome = element.nome
-        this.form.email = element.email
-        this.form.senha = element.senha
-        this.form.cargo = element.cargo
-        this.form.salario = element.salario
+        this.form.id_animal = element.id_animal
+        this.form.quantidade = element.quantidade
+        this.form.unidade = element.unidade
+        this.form.observacao = element.observacao
+        this.form.criado_em = element.criado_em
 
         this.dialog = true
 
@@ -272,35 +273,35 @@
         this.editMod = true;
         this.form =  {
           id:"",
-          nome:"",
-          email:"",
-          senha:"",
-          cargo: "",
-          salario: "",
+          id_animal:"",
+          quantidade:"",
+          unidade:"",
+          observacao: "",
+          criado_em: "",
         }
       },
       atualizar() {
         let id = this.form.id -1
         console.log(this.items[id], this.form)
 
-        this.items[id].nome = this.form.nome
-        this.items[id].email = this.form.email
-        this.items[id].senha = this.form.senha
-        this.items[id].cargo = this.form.cargo
-        this.items[id].salario = this.form.salario
+        this.items[id].id_animal = this.form.id_animal
+        this.items[id].quantidade = this.form.quantidade
+        this.items[id].unidade = this.form.unidade
+        this.items[id].observacao = this.form.observacao
 
         this.dialog = false
         this.editMod = true
 
       },
       cadastrar() {
+        this.form.criado_em = (new Date()).toISOString()
         let element = JSON.parse(JSON.stringify(this.form));
         element.id = this.currentId + 1
         this.items.push(element)
         this.dialog = false
-        this
       },
       deletar($event) {
+
         console.log(this.items[$event.id-1])
         if($event.value) {
           this.items.splice($event.id-1, 1)
@@ -324,16 +325,27 @@
         }
         console.log(dados)
 
-        vm.$emit("ExportarPDF", "gerenciar_funcionarios",this.simpleHeadersText.slice(0,-1), dados)
+        vm.$emit("ExportarPDF", "gerenciar_produtos",this.simpleHeadersText.slice(0,-1), dados)
       }
 
     },
+    computed: {
+      animais_cadastrados() {
+        let items = []
+        mydb.animais.forEach(element=> {
+          items.push(element.id)
+        })
+        
+        return items
+      }
+    },
     created() {
-     console.log(mydb)
-     this.headers.forEach(element=> {
+      console.log(mydb)
+      this.headers.forEach(element=> {
         this.simpleHeadersText.push(element.text)
         this.simpleHeadersValue.push(element.value)
       })
+      
     }
   }
 </script>

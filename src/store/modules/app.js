@@ -23,6 +23,11 @@ const state = {
       to: '/gerenciar/funcionarios/',
     },
     {
+      title: 'Gerenciar Produção',
+      icon: 'mdi-food-drumstick-outline ',
+      to: '/gerenciar/producao/',
+    },
+    {
       title: 'Financeiro',
       icon: 'mdi-currency-usd',
       to: '/components/typography/',
