@@ -23,6 +23,8 @@
       ],
     },
     created() {
+      this.$http.post("login",{})
+
       vm.$on("ExportarPDF", (_title,_headers, _body)=>{
         const doc = new jsPDF()
 

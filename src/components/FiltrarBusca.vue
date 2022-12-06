@@ -1,17 +1,19 @@
 <template>
   <v-container
     fluid
-    class="px-5"
+    class="px-5 py-1"
     >
     <v-row>
         <v-col
         md="3"
         sm="12"
         xs="12"
+        class="py-0"
         >
         <v-text-field
             label="Buscar"
             prepend-inner-icon="mdi-magnify"
+            v-model="busca"
         >
 
         </v-text-field>
@@ -20,10 +22,12 @@
         md="3"
         sm="12"
         xs="12"
+        class="py-0"
         >
         <v-autocomplete
             label="Campo"
             :items="headers.slice(0,-1)"
+            v-model="campo"
         >
 
         </v-autocomplete>
@@ -33,7 +37,8 @@
         md="3"
         sm="12"
         xs="12"
-        class="d-flex"
+        class="d-flex py-0"
+        
         >
         
         <v-tooltip bottom>
@@ -44,6 +49,7 @@
                 class="ms-2"
                 v-bind="attrs"
                 v-on="on"
+                v-on:click="$emit('filtrar-busca',{busca, campo})"
             >
                 <v-icon>
                 mdi-filter-outline 
@@ -52,6 +58,25 @@
 
             </template>
             <span>Filtrar Busca</span>
+        </v-tooltip>
+
+        <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+            <v-btn
+                fab
+                color="#b2d4e5"
+                class="ms-2"
+                v-bind="attrs"
+                v-on="on"
+                v-on:click="limpar_busca()"
+            >
+                <v-icon>
+                mdi-broom 
+                </v-icon>
+            </v-btn>
+
+            </template>
+            <span>Limpar Busca</span>
         </v-tooltip>
 
 
@@ -90,6 +115,13 @@ export default {
     },
     props: {
         headers: Array
+    },
+    methods: {
+        limpar_busca() {
+            this.busca = "",
+            this.campo = ""
+            this.$emit('limpar-busca')
+        }
     }
 }
 </script>

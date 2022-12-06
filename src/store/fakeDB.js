@@ -19,17 +19,25 @@ const mydb = {
         {id: 5, id_animal: 3, produto: "Ovo", quantidade: 20, unidade:"Unidades", observacao: "", criado_em:"2022-12-01T06:00"},
     ],
     produtos: [
-        {nome:"Carne Bovina", quantidade: 100, unidade: "Kg", preco_unitario: 20},
-        {nome:"Carne Frango", quantidade: 100, unidade: "Kg", preco_unitario: 5},
-        {nome:"Leite", quantidade: 200, unidade: "Litro", preco_unitario: 2},
-        {nome:"Ovo", quantidade: 100, unidade: "Unidade", preco_unitario: 0.3},
+        {id: 1, produto:"Carne Bovina", quantidade: 100, unidade: "Kg", preco_unitario: 20},
+        {id: 2, produto:"Carne Frango", quantidade: 100, unidade: "Kg", preco_unitario: 5},
+        {id: 3, produto:"Leite", quantidade: 200, unidade: "Litro", preco_unitario: 2},
+        {id: 4, produto:"Ovo", quantidade: 100, unidade: "Unidade", preco_unitario: 0.3},
     ],
     ocorrencias: [
-        {id_animal:1, ocorrencia: "Não bate bem da cabeça", criado_em: "2022-12-01T06:00"},
-        {id_animal:1, ocorrencia: "Não deu leite", criado_em: "2022-12-01T06:00"},
-        {id_animal:3, ocorrencia: "Botou demais", criado_em: "2022-12-01T06:00"},
-        {id_animal:4, ocorrencia: "É corno", criado_em: "2022-12-01T06:00"},
-        {id_animal:2, ocorrencia: "Olha o macaco!!", criado_em: "2022-12-01T06:00"},
+        {id: 1, id_animal:1, ocorrencia: "Não bate bem da cabeça", criado_em: "2022-12-01T06:00"},
+        {id: 2, id_animal:1, ocorrencia: "Não deu leite", criado_em: "2022-12-01T06:00"},
+        {id: 3, id_animal:3, ocorrencia: "Botou demais", criado_em: "2022-12-01T06:00"},
+        {id: 4, id_animal:4, ocorrencia: "É corno", criado_em: "2022-12-01T06:00"},
+        {id: 5, id_animal:2, ocorrencia: "Olha o macaco!!", criado_em: "2022-12-01T06:00"},
+    ],
+    transacoes: [
+        {id: 1, produto:"Carne Bovina", quantidade: 100, unidade: "Kg", valor: 2000, criado_em:"2022-12-01T06:00"},
+        {id: 2, produto:"Carne Frango", quantidade: 100, unidade: "Kg", valor: 500, criado_em:"2022-12-01T06:00"},
+        {id: 3, produto:"Leite", quantidade: 200, unidade: "Litro", valor: 200, criado_em:"2022-12-01T06:00"},
+        {id: 4, produto:"Ovo", quantidade: 100, unidade: "Unidade", valor: 30, criado_em:"2022-12-01T06:00"},
+        {id: 5, produto:"Carne Bovina", quantidade: 10, unidade: "Kg", valor: 200, criado_em:"2022-12-01T06:00"},
+        {id: 6, produto:"Carne Frango", quantidade: 10, unidade: "Kg", valor: 50, criado_em:"2022-12-01T06:00"},
     ]
 }
 

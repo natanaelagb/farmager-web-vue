@@ -54,7 +54,7 @@
                   >
                     <v-text-field
                       label="Espécie*"
-                      v-model="form.especie"
+                      v-model="form.specie"
                       required
                     ></v-text-field>
                   </v-col>
@@ -66,7 +66,7 @@
                   >
                     <v-text-field
                       label="Raça*"
-                      v-model="form.raca"
+                      v-model="form.breed"
                       required
                     ></v-text-field>
                   </v-col>
@@ -78,7 +78,7 @@
                   >
                     <v-select
                       label="Gênero*"
-                      v-model="form.genero"
+                      v-model="form.gender"
                       :items="genero"
                       required
                     ></v-select>
@@ -91,7 +91,7 @@
                   >
                     <v-text-field
                       label="Descrição"
-                      v-model="form.descricao"
+                      v-model="form.description"
                       hint="Informações detalhadas sobre o animal"
                     ></v-text-field>
                   </v-col>
@@ -102,7 +102,7 @@
                   >
                     <v-text-field
                       label="Massa (Kg)*"
-                      v-model="form.massa"
+                      v-model="form.weight"
                       hint="80 Kg"
                       required
                       type="number"
@@ -117,7 +117,7 @@
                   >
                     <v-text-field
                       label="Data de Nascimento*"
-                      v-model="form.data_nascimento"
+                      v-model="form.birth_date"
                       hint="01/01/2022"
                       type="datetime-local"
                       required
@@ -130,11 +130,36 @@
                   >
                     <v-textarea
                       label="Vacinas"
-                      v-model="form.vacinas"
+                      v-model="form.vaccines"
                       type="datetime-local"
                       required
                     ></v-textarea>
                   </v-col>
+
+                  <v-col 
+                    cols="12"
+                    sm="6"
+                  >
+                    <v-autocomplete
+                      label="Pai"
+                      v-model="form.father_id"
+                      :items="parents"
+                      required
+                    ></v-autocomplete>
+                  </v-col>
+
+                  <v-col 
+                    cols="12"
+                    sm="6"
+                  >
+                    <v-autocomplete
+                      label="Mãe"
+                      v-model="form.mother_id"
+                      :items="parents"
+                      required
+                    ></v-autocomplete>
+                  </v-col>
+                  
                  
                  
                  
@@ -164,7 +189,7 @@
           </v-card>
         </v-dialog>
       </v-card-title>
-      <FiltrarBusca :headers="headers" @exportar-dados="exportarDados"></FiltrarBusca>
+      <FiltrarBusca :headers="headers" @exportar-dados="exportarDados()"  @filtrar-busca="filtrarBusca($event)" @limpar-busca="get()"></FiltrarBusca>
       <v-data-table
       :fixed-header="true"
       :headers="headers"
@@ -177,25 +202,31 @@
             {{props.item.id}}
           </td>
           <td class="text-start">
-            {{props.item.especie}}
+            {{props.item.specie}}
           </td>
           <td class="text-start">
-            {{props.item.raca}}
+            {{props.item.breed}}
           </td>
           <td class="text-start">
-            {{props.item.genero}}
+            {{props.item.gender}}
           </td>
           <td class="text-start">
-            {{props.item.descricao}}
+            {{props.item.description}}
           </td>
           <td class="text-start">
-            {{props.item.massa}}
+            {{props.item.weight}}
           </td>
           <td class="text-start">
-            {{props.item.data_nascimento}}
+            {{$moment(props.item.birth_date).utc().format("DD/MM/YYYY HH:mm:ss")}}
           </td>
           <td class="text-start">
-            {{props.item.vacinas}}
+            {{props.item.vaccines}}
+          </td>
+          <td class="text-start">
+            {{props.item.father_id}}
+          </td>
+          <td class="text-start">
+            {{props.item.mother_id}}
           </td>
           <td>
             <v-btn
@@ -240,7 +271,7 @@
       </v-data-table>
 
       <ConfirmDialog :dialog="dialogConfirm" :id="dialogId" @confirm-event="deletar($event)"></ConfirmDialog>
-      <OcorrenciasDialog :dialogOcurrence="dialogOcurrence" :id_animal="dialogAnimal"></OcorrenciasDialog>
+      <OcorrenciasDialog :dialogOcurrence="dialogOcurrence" :id_animal="dialogAnimal" @fechar-dialog-ocorrencia="(dialogOcurrence = false)"></OcorrenciasDialog>
 
     </v-card>
 
@@ -269,34 +300,36 @@
           {text:'Galinha', value:'galinha'}
         ],
         genero: [
-          {text:'Macho', value:'M'}, 
-          {text:'Fêmea', value:'F'},
+          {text:'Macho'}, 
+          {text:'Fêmea'},
         ],
         headers:[
           {text:'Id', value: 'id'},
-          {text:'Especie', value: 'especie'},
-          {text:'Raça', value: 'raca'},
-          {text:'Gênero', value: 'genero'},
-          {text:'Descrição', value: 'descricao'},
-          {text:'Massa (Kg)', value: 'massa'},
-          {text:'Data de Nascimento', value: 'data_nascimento'},
-          {text:'Vacinas', value: 'vacinas'},
+          {text:'Especie', value: 'specie'},
+          {text:'Raça', value: 'breed'},
+          {text:'Gênero', value: 'gender'},
+          {text:'Descrição', value: 'description'},
+          {text:'Massa (Kg)', value: 'weight'},
+          {text:'Data de Nascimento', value: 'birth_date'},
+          {text:'Vacinas', value: 'vaccines'},
+          {text:'Pai', value: 'father_id'},
+          {text:'Mãe', value: 'mother_id'},
           {text:"Acoes"}
         ],
         simpleHeadersText: [],
         simpleHeadersValue: [],
-        items: 
-          mydb.animais
-        ,
+        items: [],
         form: {
           id:"",
-          especie:"",
-          raca: "",
-          genero: "",
-          descricao:"",
-          massa: "",
-          data_nascimento: "",
-          vacinas: ""
+          specie:"",
+          breed: "",
+          gender: "",
+          description:"",
+          weight: "",
+          birth_date: "",
+          vaccines: "",
+          father_id: "",
+          mother_id: ""
         },
         editMod: true,
         dialog: false,
@@ -307,18 +340,30 @@
         dialogAnimal: 0,
       }
     },
+    computed: {
+      parents() {
+        let parents = [0]
+        this.items.forEach(element=>{
+          parents.push(element.id)
+        })
+        return parents
+      }
+    },
     methods: {
       editar(element) {
         this.editMod = false
         
         this.form.id = element.id
-        this.form.especie = element.especie
-        this.form.raca = element.raca
-        this.form.genero = element.genero
-        this.form.descricao = element.descricao
-        this.form.massa = element.massa
-        this.form.data_nascimento = element.data_nascimento
-        this.form.vacinas = element.vacinas
+        this.form.specie = element.specie
+        this.form.breed = element.breed
+        this.form.gender = element.gender
+        this.form.description = element.description
+        this.form.weight = element.weight
+        this.form.birth_date = this.$moment(element.birth_date).utc().format("YYYY-MM-DDTHH:mm:ss")
+        this.form.vaccines = element.vaccines,
+        this.form.father_id = element.father_id
+        this.form.mother_id = element.mother_id,
+        
 
         this.dialog = true
 
@@ -328,41 +373,49 @@
         this.editMod = true;
         this.form =  {
           id:"",
-          especie:"",
-          raca: "",
-          genero: "",
-          descricao:"",
-          massa: "",
-          data_nascimento: "",
-          vacinas: ""
+          specie:"",
+          breed: "",
+          gender: "",
+          description:"",
+          weight: "",
+          birth_date: "",
+          vaccines: "",
+          father_id: "",
+          mother_id: ""
         }
       },
       atualizar() {
-        let id = this.form.id -1
-        console.log(this.items[id], this.form)
+        console.log(this.form)
+        this.$http.post("animals/"+this.form.id+"/update",this.form).then(response => {
+          this.get()
+        }, error => {
+          console.log("🚀 ~ file: GerenciarAnimais.vue:392 ~ this.$http.post ~ error", error)
+        })
 
-        this.items[id].especie = this.form.especie
-        this.items[id].raca = this.form.raca
-        this.items[id].genero = this.form.genero
-        this.items[id].descricao = this.form.descricao
-        this.items[id].massa = this.form.massa
-        this.items[id].data_nascimento = this.form.data_nascimento
-        this.items[id].vacinas = this.form.vacinas
-
-        this.dialog = false
-        this.editMod = true
+        this.fechar()
 
       },
       cadastrar() {
-        let element = JSON.parse(JSON.stringify(this.form));
-        element.id = this.currentId + 1
-        this.items.push(element)
-        this.dialog = false
+
+        console.log(this.form)
+        this.$http.post("animals", this.form).then(response => {
+            console.log("🚀 ~ file: GerenciarAnimais.vue:389 ~ this.$http.post ~ response", response)
+            this.items.push(response.data)
+        	}, error => {
+        	  console.log("🚀 ~ file: GerenciarAnimais.vue:392 ~ this.$http.post ~ error", error)
+        	}
+        )
+
+        this.fechar()
       },
       deletar($event) {
-        console.log(this.items[$event.id-1])
         if($event.value) {
-          this.items.splice($event.id-1, 1)
+          this.$http.delete('animals/'+$event.id).then(response => {
+              this.items = response.data.animals
+            },  error => {
+              console.log("🚀 ~ file: GerenciarAnimais.vue:404 ~ this.$http.delete ~ error", error)
+            }
+          )
         }
         this.dialogConfirm = false
       },
@@ -387,18 +440,39 @@
         vm.$emit("ExportarPDF", "gerenciar_animais",this.simpleHeadersText.slice(0,-1), dados)
       },
 
+      filtrarBusca(event) {
+        this.$http.post("animals-filter", event).then( response => {
+          this.items = response.data.animals
+          console.log("🚀 ~ file: GerenciarAnimais.vue:441 ~ this.$http.post ~ response", response)  
+        }, error => {
+          console.log("🚀 ~ file: GerenciarAnimais.vue:443 ~ this.$http.post ~ error", error)
+        })
+      },
+
       callDialogOcurrence(id) {
         this.dialogOcurrence = true
         this.dialogAnimal = id
-      }
+      },
+
+      get() {
+        this.$http.get('animals').then(response => {
+        this.items = response.data.animals
+          console.log("🚀 ~ file: GerenciarAnimais.vue:401 ~ this.$http.get ~ response", response)
+        }, error => {
+          console.log("🚀 ~ file: GerenciarAnimais.vue:403 ~ this.$http.get ~ error", error) 
+        })
+      },
 
     },
     created() {
-      console.log(mydb)
+
       this.headers.forEach(element=> {
         this.simpleHeadersText.push(element.text)
         this.simpleHeadersValue.push(element.value)
       })
+
+      this.get()
+      
     }
   }
 </script>

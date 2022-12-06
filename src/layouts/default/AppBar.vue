@@ -27,8 +27,24 @@
     <default-go-home />
 
     <!-- <default-notifications /> -->
+    <v-tooltip bottom>
+      <template v-slot:activator="{ on, attrs }">
+        <v-btn
+          icon
+          color="error"
+          dark
+          v-bind="attrs"
+          v-on="on"
+          @click="logout()"
+        >
+          <v-icon>
+            mdi-logout
+          </v-icon>
+        </v-btn>
+      </template>
+      <span>Logout</span>
+    </v-tooltip>
 
-    <default-account />
   </v-app-bar>
 </template>
 
@@ -65,5 +81,17 @@
       ]),
       name: get('route/name'),
     },
+    methods: {
+      logout() {
+        console.log('teste')
+        this.$http.post('logout',{}).then(response=>{
+          console.log(response)
+          this.$session.destroy()
+          this.$http.defaults.auth = {}
+          this.$router.push("/login")
+        })
+
+      }
+    }
   }
 </script>

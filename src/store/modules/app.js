@@ -28,20 +28,14 @@ const state = {
       to: '/gerenciar/producao/',
     },
     {
+      title: 'Gerenciar Estoque',
+      icon: 'mdi-home-silo-outline',
+      to: '/gerenciar/estoque/',
+    },
+    {
       title: 'Financeiro',
       icon: 'mdi-currency-usd',
-      to: '/components/typography/',
-      items: [
-        {
-          title: 'Animal',
-          // to: '/',
-        },
-        {
-          title: 'Pessoal',
-          // to: '/components/profile/',
-        },
-
-      ]
+      to: '/gerenciar/financeiro/',
     },
     // {
     //   title: 'Icons',

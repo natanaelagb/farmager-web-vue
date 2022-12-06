@@ -5,7 +5,7 @@
     tag="section"
   >
     <view-intro
-      heading="Gerenciar Funcionários"
+      heading="Gerenciar Estoque"
     />
     <!-- icon="mdi-clipboard-text" -->
     <v-card
@@ -35,42 +35,43 @@
             </v-btn>
 
             <h2 class="text-h4 ml-4 mt-n4">
-              Cadastrar Funcionarios
+              Cadastrar Produto
             </h2>
             
           
           </template>
           <v-card>
             <v-card-title>
-              <span class="text-h5">{{editMod ? "Cadastrar" : "Atualizar"}} Animal</span>
+              <span class="text-h5">{{editMod ? "Cadastrar" : "Atualizar"}} Produto</span>
             </v-card-title>
             <v-card-text>
               <v-container>
                 <v-row>
+                  
                   <v-col
                     cols="12"
                     sm="6"
                     md="6"
                   >
                     <v-text-field
-                      label="Nome*"
-                      v-model="form.nome"
-                      hint="Fulano de Tal"
+                      label="Produto*"
+                      v-model="form.produto"
                       required
                     ></v-text-field>
                   </v-col>
+
                   <v-col
                     cols="12"
                     sm="6"
                     md="6"
                   >
                     <v-text-field
-                      label="Email*"
-                      v-model="form.email"
-                      hint="fulano@gmail.com"
+                      label="Estoque Atual*"
+                      v-model="form.quantidade"
+                      hint="10 Unidades"
                       required
-                      type="email"
-                      validate-on-blur
+                      type="number"
+                      min="0"
                     ></v-text-field>
                   </v-col>
 
@@ -79,14 +80,14 @@
                     sm="6"
                     md="6"
                   >
-                    <v-text-field
-                      label="Senha*"
-                      v-model="form.senha"
-                      hint="admin"
+                    <v-autocomplete
+                      label="Unidade*"
+                      v-model="form.unidade"
+                      :items="unidades"
+                      hint="Litro"
                       required
-                      type="password"
-                      
-                    ></v-text-field>
+
+                    ></v-autocomplete>
                   </v-col>
 
 
@@ -95,30 +96,13 @@
                     sm="6"
                     md="6"
                   >
-                    <v-select
-                      label="Cargo*"
-                      v-model="form.cargo"
-                      :items="cargos"
-                      required
-                    ></v-select>
-                  </v-col>
-
-                  <v-col 
-                    cols="12"
-                    sm="6"
-                    md="6"
-                  >
                     <v-text-field
-                      label="Salario"
-                      v-model="form.salario"
-                      hint="2000.00R$"
+                      label="Preço Unitário"
+                      v-model="form.preco_unitario"
                       type="number"
                       step="0.1"
-                      min="0"
-                      required
                     ></v-text-field>
-                  </v-col>
-                 
+                  </v-col>                 
                  
                  
                 </v-row>
@@ -146,7 +130,7 @@
         </v-dialog>
       </v-card-title>
 
-      <FiltrarBusca :headers="headers"  @exportar-dados="exportarDados"></FiltrarBusca>
+      <FiltrarBusca :headers="headers" @exportar-dados="exportarDados"></FiltrarBusca>
 
       <v-data-table
       :fixed-header="true"
@@ -160,16 +144,16 @@
             {{props.item.id}}
           </td>
           <td class="text-start">
-            {{props.item.nome}}
+            {{props.item.produto}}
           </td>
           <td class="text-start">
-            {{props.item.email}}
+            {{props.item.quantidade}}
           </td>
           <td class="text-start">
-            {{props.item.cargo}}
+            {{props.item.unidade}}
           </td>
           <td class="text-start">
-            {{props.item.salario}}
+            {{props.item.preco_unitario}}
           </td>
 
           <td>
@@ -212,43 +196,41 @@
   import ConfirmDialog from '../components/ConfirmDialog.vue'
   import {vm} from "@/main.js"
   export default {
-    name: 'GerenciarFuncionarios',
+    name: 'GerenciarEstoque',
     components: {
       FiltrarBusca,
       ConfirmDialog,
     },
     data: ()=>{
       return {
-        cargos: [
-          {text:'Gerente', value:'Gerente'}, 
-          {text:'Administrador', value:'Administrador'}, 
-          {text:'Funcionario', value:'Funcionario'},
+        unidades: [
+          {text:'Kg', value:'Kg'}, 
+          {text:'Litro', value:'Litro'}, 
+          {text:'Unidade', value:'Unidade'},
         ],
         headers:[
-          {text:'Id', value: 'id'},
-          {text:'Nome', value: 'nome'},
-          {text:'Email', value: 'email'},
-          {text:'Cargo', value: 'cargo'},
-          {text:'Salário', value: 'salario'},
+          {text:'ID', value: 'id'},
+          {text:'Produto', value: 'produto'},
+          {text:'Estoque Atual', value: 'quantidade'},
+          {text:'Unidade', value: 'unidade'},
+          {text:'Preço Unitário', value: 'observacao'},
           {text:"Acoes"}
-
         ],
         simpleHeadersText: [],
         simpleHeadersValue: [],
         items: 
-          mydb.usuarios
+          mydb.produtos
         ,
         form: {
           id:"",
-          nome:"",
-          email:"",
-          senha:"",
-          cargo: "",
-          salario: "",
+          produto:"",
+          quantidade:"",
+          unidade:"",
+          preco_unitario: "",
         },
         editMod: true,
         dialog: false,
-        currentId: 3, 
+        currentId: 4, 
         callDialog: false,
         dialogId: 0,
       }
@@ -258,11 +240,10 @@
         this.editMod = false
         
         this.form.id = element.id
-        this.form.nome = element.nome
-        this.form.email = element.email
-        this.form.senha = element.senha
-        this.form.cargo = element.cargo
-        this.form.salario = element.salario
+        this.form.produto = element.produto
+        this.form.quantidade = element.quantidade
+        this.form.unidade = element.unidade
+        this.form.preco_unitario = element.preco_unitario
 
         this.dialog = true
 
@@ -272,33 +253,32 @@
         this.editMod = true;
         this.form =  {
           id:"",
-          nome:"",
-          email:"",
-          senha:"",
-          cargo: "",
-          salario: "",
+          produto:"",
+          quantidade:"",
+          unidade:"",
+          preco_unitario: "",
         }
       },
       atualizar() {
         let id = this.form.id -1
         console.log(this.items[id], this.form)
 
-        this.items[id].nome = this.form.nome
-        this.items[id].email = this.form.email
-        this.items[id].senha = this.form.senha
-        this.items[id].cargo = this.form.cargo
-        this.items[id].salario = this.form.salario
-        this.fechar()   
+        this.items[id].produto = this.form.produto
+        this.items[id].quantidade = this.form.quantidade
+        this.items[id].unidade = this.form.unidade
+        this.items[id].preco_unitario = this.form.preco_unitario
+
+        this.fechar()
 
       },
       cadastrar() {
         let element = JSON.parse(JSON.stringify(this.form));
         element.id = this.currentId + 1
         this.items.push(element)
-        this.dialog = false
         this.fechar()
       },
       deletar($event) {
+
         console.log(this.items[$event.id-1])
         if($event.value) {
           this.items.splice($event.id-1, 1)
@@ -311,7 +291,7 @@
       },
       exportarDados() {
         let dados = []
-        console.log("GerenciarProdutos")
+        console.log("GerenciarEstoque")
         for (let index = 0; index < this.items.length; index++) {
           let el = [];
           this.simpleHeadersValue.slice(0,-1).forEach(field=>{
@@ -322,16 +302,27 @@
         }
         console.log(dados)
 
-        vm.$emit("ExportarPDF", "gerenciar_funcionarios",this.simpleHeadersText.slice(0,-1), dados)
+        vm.$emit("ExportarPDF", "gerenciar_estoque",this.simpleHeadersText.slice(0,-1), dados)
       }
 
     },
+    computed: {
+      animais_cadastrados() {
+        let items = []
+        mydb.animais.forEach(element=> {
+          items.push(element.id)
+        })
+        
+        return items
+      }
+    },
     created() {
-     console.log(mydb)
-     this.headers.forEach(element=> {
+      console.log(mydb)
+      this.headers.forEach(element=> {
         this.simpleHeadersText.push(element.text)
         this.simpleHeadersValue.push(element.value)
       })
+      
     }
   }
 </script>

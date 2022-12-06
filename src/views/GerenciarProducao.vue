@@ -160,6 +160,9 @@
             {{props.item.id_animal}}
           </td>
           <td class="text-start">
+            {{props.item.produto}}
+          </td>
+          <td class="text-start">
             {{props.item.quantidade}}
           </td>
           <td class="text-start">
@@ -224,10 +227,11 @@
           {text:'Litro', value:'Litro'}, 
           {text:'Unidade', value:'Unidade'},
         ],
-        produtos: mydb.produtos,
+        produtos: [],
         headers:[
           {text:'ID', value: 'id'},
           {text:'ID Animal', value: 'id_animal'},
+          {text:'Produto', value: 'produto'},
           {text:'Quantidade', value: 'quantidade'},
           {text:'Unidade', value: 'unidade'},
           {text:'Observações', value: 'observacao'},
@@ -289,16 +293,14 @@
         this.items[id].unidade = this.form.unidade
         this.items[id].observacao = this.form.observacao
 
-        this.dialog = false
-        this.editMod = true
-
+        this.fechar()
       },
       cadastrar() {
         this.form.criado_em = (new Date()).toISOString()
         let element = JSON.parse(JSON.stringify(this.form));
         element.id = this.currentId + 1
         this.items.push(element)
-        this.dialog = false
+        this.fechar()
       },
       deletar($event) {
 
@@ -344,6 +346,10 @@
       this.headers.forEach(element=> {
         this.simpleHeadersText.push(element.text)
         this.simpleHeadersValue.push(element.value)
+      })
+
+      mydb.produtos.forEach(element=>{
+        this.produtos.push(element['produto'])
       })
       
     }

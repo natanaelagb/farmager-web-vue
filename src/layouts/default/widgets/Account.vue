@@ -34,7 +34,7 @@
         <app-bar-item
           v-else
           :key="`item-${i}`"
-          :to="p.path"
+          @click="logout()"
         >
           <v-list-item-title v-text="p.title" />
         </app-bar-item>
@@ -49,11 +49,19 @@
 
     data: () => ({
       profile: [
-        { title: 'Profile' },
-        { title: 'Settings' },
-        { divider: true },
-        { title: 'Log out', path:'/login' },
+        { title: 'Log out'},
       ],
     }),
+    methods: {
+      logout() {
+        console.log('teste')
+        this.$http.post('logout',{}).then(response=>{
+          console.log(response)
+          this.$session.destroy()
+          this.$router.push("/login")
+        })
+
+      }
+    }
   }
 </script>

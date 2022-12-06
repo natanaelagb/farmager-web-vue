@@ -22,7 +22,7 @@
                   name="login"
                   label="Login"
                   type="text"
-                  v-model="form.usuario"
+                  v-model="form.login"
                 ></v-text-field>
                 <v-text-field
                   id="password"
@@ -36,7 +36,7 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn @click="logar" color="primary" to="/">Login</v-btn>
+              <v-btn @click="logar" color="primary">Login</v-btn>
             </v-card-actions>
           </v-card>
         </v-col>
@@ -61,8 +61,28 @@ export default {
   }),
   methods: {
     logar() {
-      console.log(this.form)
+      this.$http.post('login', {}, {
+        auth: {
+          username: this.form.login,
+          password: this.form.senha
+        }
 
+      }).then(response => {
+        console.log('login', response)
+        if (response.status === 200) {
+          this.$session.start()
+          this.$http.defaults.auth =            
+            {
+              username: this.form.login,
+              password: this.form.senha
+            }
+          
+          this.$router.push('/')
+        }
+      }, err => {
+        console.log('err', err)
+      })
+        
     }
   }
 };

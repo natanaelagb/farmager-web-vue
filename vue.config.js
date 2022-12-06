@@ -1,6 +1,5 @@
 module.exports = {
-  // publicPath: "/farmager/web/dist/",
-  
+  publicPath: "./",
   devServer: {
     disableHostCheck: true,
   },
