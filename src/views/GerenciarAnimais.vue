@@ -144,7 +144,6 @@
                       label="Pai"
                       v-model="form.father_id"
                       :items="parents"
-                      required
                     ></v-autocomplete>
                   </v-col>
 
@@ -156,7 +155,6 @@
                       label="Mãe"
                       v-model="form.mother_id"
                       :items="parents"
-                      required
                     ></v-autocomplete>
                   </v-col>
                   
@@ -271,7 +269,7 @@
       </v-data-table>
 
       <ConfirmDialog :dialog="dialogConfirm" :id="dialogId" @confirm-event="deletar($event)"></ConfirmDialog>
-      <OcorrenciasDialog :dialogOcurrence="dialogOcurrence" :id_animal="dialogAnimal" @fechar-dialog-ocorrencia="(dialogOcurrence = false)"></OcorrenciasDialog>
+      <OcorrenciasDialog :dialogOcurrence="dialogOcurrence" :animal_id="dialogAnimal" @fechar-dialog-ocorrencia="(dialogOcurrence = false)"></OcorrenciasDialog>
 
     </v-card>
 
@@ -342,7 +340,7 @@
     },
     computed: {
       parents() {
-        let parents = [0]
+        let parents = []
         this.items.forEach(element=>{
           parents.push(element.id)
         })

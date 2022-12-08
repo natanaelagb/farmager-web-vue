@@ -50,12 +50,11 @@
                     >
                       <v-text-field
                         label="ID animal*"
-                        v-model="form.id_animal"
+                        v-model="form.animal_id"
                         readonly
                         required
                       ></v-text-field>
                     </v-col>
-
                   
                   <v-col
                       cols="12"
@@ -64,9 +63,11 @@
                   >
                     <v-textarea
                       label="Ocorrência"
-                      v-model="form.ocorrencia"
+                      v-model="form.description"
                     ></v-textarea>
                   </v-col>
+
+                  
                   
                   </v-row>
                 </v-container>
@@ -95,7 +96,7 @@
         <v-card-text
           class="py-0 px-3"
         >
-        <FiltrarBusca class="mx-n2" :headers="headers" @exportar-dados="exportarDados"></FiltrarBusca>
+        <FiltrarBusca class="mx-n2" :headers="headers" @exportar-dados="exportarDados" @filtrar-busca="filtrarBusca($event)" @limpar-busca="get()"></FiltrarBusca>
         <v-data-table
         :fixed-header="true"
         :headers="headers"
@@ -108,14 +109,18 @@
               {{props.item.id}}
             </td>
             <td class="text-start">
-              {{props.item.id_animal}}
+              {{props.item.animal_id}}
             </td>
             <td class="text-start">
-              {{props.item.ocorrencia}}
+              {{props.item.description}}
             </td>
 
             <td class="text-start">
-              {{props.item.criado_em}}
+              {{$moment(props.item.created_at).utc().format("DD/MM/YYYY HH:mm:ss")}}
+            </td>
+
+            <td class="text-start">
+              {{props.item.user.name}}
             </td>
             
             <td>
@@ -178,12 +183,13 @@
     },
     data: ()=>{
       return {
-        
+        users: [],
         headers:[
           {text:'ID', value: 'id'},
-          {text:'ID Animal', value: 'id_animal'},
-          {text:'Ocorrência', value: 'ocorrencia'},
-          {text:'Data', value: 'criado_em'},
+          {text:'ID Animal', value: 'animal_id'},
+          {text:'Ocorrência', value: 'description'},
+          {text:'Data', value: 'created_at'},
+          {text:'Funcionário', value: 'user.name'},
           {text:"Acoes"}
         ],
         simpleHeadersText: [],
@@ -191,9 +197,10 @@
         items: [],
         form: {
           id: "",
-          id_animal:"",
-          ocorrencia:"",
-          criado_em: "",
+          animal_id:"",
+          description:"",
+          created_at: "",
+          user_id: ""
         },
         editMod: true,
         dialog: false,
@@ -204,33 +211,36 @@
     },
     props: {
       dialogOcurrence: Boolean,
-      id_animal: Number,
+      animal_id: Number,
     },
     watch: {
       dialogOcurrence(newVal, oldVal) {
         if(newVal) {
-          console.log(mydb)
+          this.get()
 
-          mydb.ocorrencias.forEach(element => {
-            if(element.id_animal == this.id_animal) {
-              this.items.push(element)
-            }
-          })
-
-          this.form.id_animal = this.id_animal
+          this.form.animal_id = this.animal_id
         } else {
           this.items = []
-          this.form.id_animal = ""
+          this.form.animal_id = ""
         }
       }
     },
     methods: {
+      get() {
+        this.$http.get("animals/"+this.animal_id+"/events").then(response => {
+        this.items = response.data.events
+          console.log("🚀 ~ file: GerenciarAnimais.vue:401 ~ this.$http.get ~ response", response)
+        }, error => {
+          console.log("🚀 ~ file: GerenciarAnimais.vue:403 ~ this.$http.get ~ error", error) 
+        })
+      },
       editar(element) {
         this.editMod = false
         
         this.form.id = element.id
-        this.form.id_animal = element.id_animal
-        this.form.ocorrencia = element.ocorrencia
+        this.form.animal_id = element.animal_id
+        this.form.description = element.description
+        this.form.user_id = element.user.id
 
         this.dialog = true
 
@@ -239,30 +249,46 @@
         this.dialog = false; 
         this.editMod = true;
         this.form =  {
-          id_animal:"",
-          ocorrencia:"",
+          animal_id:"",
+          description:"",
 
         }
       },
       atualizar() {
-        let id = this.form.id -1
-        console.log(this.items[id], this.form)
-
-        this.items[id].ocorrencia = this.form.ocorrencia
-
+        console.log(this.form)
+        this.$http.post("animals/"+this.form.animal_id+"/events/"+this.form.id+"/update",this.form).then(response => {
+          this.get()
+        }, error => {
+          console.log("🚀 ~ file: GerenciarAnimais.vue:392 ~ this.$http.post ~ error", error)
+        })
+       
         this.fechar()
 
       },
       cadastrar() {
-        let element = JSON.parse(JSON.stringify(this.form));
-        element.id = this.currentId + 1
-        this.items.push(element)
+        this.form.user_id = this.$session.get('user_data').id
+        this.form.created_at = this.$moment().format('YYYY-MM-DDTHH:mm:ss')
+        console.log(this.form)
+
+        this.$http.post("animals/"+this.animal_id+"/events", this.form).then(response => {
+          console.log("🚀 ~ file: GerenciarOcorrencias.vue:267 ~ this.$http.post ~ response", response)
+            this.items.push(response.data)
+        	}, error => {
+        	console.log("🚀 ~ file: GerenciarOcorrencias.vue:270 ~ this.$http.post ~ error", error)
+        	}
+        )
+
         this.fechar()
       },
       deletar($event) {
-        console.log(mydb.ocorrencias[$event.id-1])
+
         if($event.value) {
-          mydb.ocorrencias.splice($event.id-1, 1)
+          this.$http.delete('animals/'+this.animal_id+'/events/'+$event.id).then(response => {
+              this.items = response.data.events
+            },  error => {
+              console.log("🚀 ~ file: GerenciarOcorrencias.vue:289 ~ this.$http.delete ~ error", error)
+            }
+          )
         }
         this.callDialog = false
       },
@@ -286,6 +312,16 @@
 
         vm.$emit("ExportarPDF", "gerenciar_ocorrencias",this.simpleHeadersText.slice(0,-1), dados)
       },
+
+      filtrarBusca(event) {
+        this.$http.post("animals/"+this.animal_id+"/events-filter", event).then( response => {
+          this.items = response.data.events
+          console.log("🚀 ~ file: GerenciarAnimais.vue:441 ~ this.$http.post ~ response", response)  
+        }, error => {
+          console.log("🚀 ~ file: GerenciarAnimais.vue:443 ~ this.$http.post ~ error", error)
+        })
+      },
+
       fecharOcorrencias() {
         this.$emit("fechar-dialog-ocorrencia")
       }
@@ -295,6 +331,12 @@
       this.headers.forEach(element=> {
         this.simpleHeadersText.push(element.text)
         this.simpleHeadersValue.push(element.value)
+      })
+
+      this.$http.get('users').then(response => {
+        response.data.users.forEach(element => {
+          this.users.push({text:element.name, value:element.id})
+        })
       })
     }
   }

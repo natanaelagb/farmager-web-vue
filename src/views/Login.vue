@@ -60,23 +60,22 @@ export default {
     }
   }),
   methods: {
-    logar() {
-      this.$http.post('login', {}, {
-        auth: {
-          username: this.form.login,
-          password: this.form.senha
-        }
 
-      }).then(response => {
-        console.log('login', response)
+    logar() {
+      let auth = {
+        username: this.form.login,
+        password: this.form.senha
+      }
+
+      this.$http.post('login', auth, {auth}).then(response => {
         if (response.status === 200) {
           this.$session.start()
+          this.$session.set('user_data', response.data[0])
           this.$http.defaults.auth =            
             {
               username: this.form.login,
               password: this.form.senha
             }
-          
           this.$router.push('/')
         }
       }, err => {

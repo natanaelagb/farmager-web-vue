@@ -1,8 +1,8 @@
 // Imports
 import Vue from 'vue'
 import Router from 'vue-router'
-import axios from 'axios'
 import { trailingSlash } from '@/util/helpers'
+
 import {
   layout,
   route,
@@ -44,10 +44,10 @@ const router = new Router({
   ],
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   // let isAuthenticated = false
 
-  // await axios.post('login', {}, {baseURL:"http://localhost:8081/farmager/api/public/"}).then(response => {
+  // await $http.post('login', {}, {baseURL:"http://localhost:8081/farmager/api/public/"}).then(response => {
 
   //   if (response.status === 200) {
   //     isAuthenticated = true
@@ -60,5 +60,6 @@ router.beforeEach((to, from, next) => {
   // else 
   return to.path.endsWith('/') ? next() : next(trailingSlash(to.path))
 })
+
 
 export default router
