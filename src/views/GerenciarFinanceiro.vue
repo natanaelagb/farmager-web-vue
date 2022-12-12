@@ -42,7 +42,7 @@
           </template>
           <v-card>
             <v-card-title>
-              <span class="text-h5">{{editMod ? "Cadastrar" : "Atualizar"}} Produto</span>
+              <span class="text-h5">{{storeMod ? "Cadastrar" : "Atualizar"}} Produto</span>
             </v-card-title>
             <v-card-text>
               <v-container>
@@ -55,8 +55,8 @@
                   >
                     <v-autocomplete
                       label="Produto*"
-                      v-model="form.produto"
-                      :items="produtos"
+                      v-model="form.product_id"
+                      :items="products"
                       required
                     ></v-autocomplete>
                   </v-col>
@@ -68,7 +68,7 @@
                   >
                     <v-text-field
                       label="Quantidade Vendida*"
-                      v-model="form.quantidade"
+                      v-model="form.amount"
                       hint="10 Unidades"
                       required
                       type="number"
@@ -83,9 +83,23 @@
                   >
                     <v-text-field
                       label="Unidade*"
-                      v-model="form.unidade"
+                      v-model="currentUnit"
                       hint="Kg"
+                      readonly
                     ></v-text-field>
+                  </v-col>
+
+                  <v-col
+                    cols="12"
+                    sm="12"
+                    md="12"
+                  >
+                    <v-textarea
+                      label="Descrição*"
+                      v-model="form.description"
+                      hint="Foi vendido mais que o previsto..."
+                      
+                    ></v-textarea>
                   </v-col>
 
                  
@@ -105,9 +119,9 @@
               <v-btn
                 color="primary"
                 text
-                @click="editMod ? cadastrar() : atualizar()"
+                @click="storeMod ? cadastrar() : atualizar()"
               >
-                {{editMod ? "Cadastar" : "Atualizar"}}
+                {{storeMod ? "Cadastar" : "Atualizar"}}
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -128,19 +142,22 @@
             {{props.item.id}}
           </td>
           <td class="text-start">
-            {{props.item.produto}}
+            {{props.item.product.description}}
           </td>
           <td class="text-start">
-            {{props.item.quantidade}}
+            {{props.item.amount}}
           </td>
           <td class="text-start">
-            {{props.item.unidade}}
+            {{props.item.product.unit}}
           </td>
           <td class="text-start">
-            {{props.item.valor}}
+            {{props.item.value}}
           </td>
           <td class="text-start">
-            {{props.item.criado_em}}
+            {{$moment(props.item.created_at).utc().format("DD/MM/YYYY HH:mm:ss")}}
+          </td>
+          <td class="text-start">
+            {{props.item.user.name}}
           </td>
 
           <td>
@@ -170,7 +187,7 @@
       </template>
       </v-data-table>
 
-      <ConfirmDialog :dialog="callDialog" :id="dialogId" @confirm-event="deletar($event)"></ConfirmDialog>
+      <ConfirmDialog :dialog="dialogConfirm" :id="dialogId" @confirm-event="deletar($event)"></ConfirmDialog>
 
     </v-card>
 
@@ -190,96 +207,92 @@
     },
     data: ()=>{
       return {
-        unidades: [
-          {text:'Kg', value:'Kg'}, 
-          {text:'Litro', value:'Litro'}, 
-          {text:'Unidade', value:'Unidade'},
-        ],
-        produtos: [],
+        products: [],
         headers:[
           {text:'ID', value: 'id'},
-          {text:'Produto', value: 'produto'},
-          {text:'Estoque Atual', value: 'quantidade'},
-          {text:'Unidade', value: 'unidade'},
-          {text:'Valor Total', value: 'valor'},
-          {text:'Data', value: 'criado_em'},
+          {text:'Produto', value: 'description'},
+          {text:'Quantidade', value: 'amount'},
+          {text:'Unidade', value: 'unit'},
+          {text:'Valor Total', value: 'value'},
+          {text:'Data', value: 'created_at'},
+          {text:'Usuário', value: 'user.name'},
           {text:"Acoes"}
         ],
         simpleHeadersText: [],
         simpleHeadersValue: [],
-        items: 
-          mydb.transacoes
-        ,
+        items: [],
         form: {
           id:"",
-          produto:"",
-          quantidade:"",
-          unidade:"",
-          valor: "",
+          product_id:"",
+          amount:"",
+          description:""
         },
-        editMod: true,
+        storeMod: true,
         dialog: false,
         currentId: 6, 
-        callDialog: false,
+        dialogConfirm: false,
         dialogId: 0,
       }
     },
     methods: {
       editar(element) {
-        this.editMod = false
+        this.storeMod = false
         
         this.form.id = element.id
-        this.form.produto = element.produto
-        this.form.quantidade = element.quantidade
-        this.form.unidade = element.unidade
-        this.form.valor = element.quantidade*10
+        this.form.product_id = element.product_id
+        this.form.description = element.description
+        this.form.amount = element.amount
 
         this.dialog = true
 
       },
       fechar() {
         this.dialog = false; 
-        this.editMod = true;
+        this.storeMod = true;
         this.form =  {
           id:"",
-          produto:"",
-          quantidade:"",
-          unidade:"",
-          valor: "",
-          criado_em: "",
+          product_id:"",
+          amount:"",
         }
       },
       atualizar() {
-        let id = this.form.id -1
-        console.log(this.items[id], this.form)
+        console.log(this.form)
+        this.$http.post("financial-transactions/"+this.form.id+"/update",this.form).then(response => {
+          this.get()
+        }, error => {
+          console.log("🚀 ~ file: GerenciarFinanceiro.vue:263 ~ this.$http.post ~ error", error)
+        })
 
-        this.items[id].produto = this.form.produto
-        this.items[id].quantidade = this.form.quantidade
-        this.items[id].unidade = this.form.unidade
-        this.items[id].valor = this.form.quantidade*10
-
-        this.fechar()
+        this.fechar() 
 
       },
       cadastrar() {
-        this.form.valor = this.quantidade*10
-        this.form.criado_em = this.$moment().format("DD/MM/YYYY_HH:mm:ss")
-        let element = JSON.parse(JSON.stringify(this.form));
-        element.id = this.currentId + 1
-        this.items.push(element)
+        console.log(this.form)
+        this.form.user_id = this.$session.get("user_data").id
+        this.$http.post("financial-transactions", this.form).then(response => {
+            console.log("🚀 ~ file: GerenciarFinanceiro.vue:257 ~ this.$http.post ~ response", response)
+            this.items.push(response.data)
+        	}, error => {
+        	console.log("🚀 ~ file: GerenciarFinanceiro.vue:260 ~ this.$http.post ~ error", error)
+        	}
+        )
+
         this.fechar()
       },
       deletar($event) {
-
-        console.log(this.items[$event.id-1])
         if($event.value) {
-          this.items.splice($event.id-1, 1)
+          this.$http.delete('financial-transactions/'+$event.id).then(response => {
+              this.items = response.data.transactions
+            },  error => {
+              console.log("🚀 ~ file: GerenciarProducao.vue:307 ~ this.$http.delete ~ error", error)
+            }
+          )
         }
-        this.callDialog = false
+        this.dialogConfirm = false
       },
       confirmar(id) {
         this.dialogId = id
-        this.callDialog = true
+        this.dialogConfirm = true
       },
       exportarDados() {
         let dados = []
@@ -295,7 +308,18 @@
         console.log(dados)
 
         vm.$emit("ExportarPDF", "gerenciar_financeiro",this.simpleHeadersText.slice(0,-1), dados)
-      }
+      },
+
+      get() {
+        this.$http.get('financial-transactions').then(response => {
+          console.log("🚀 ~ file: GerenciarFinanceiro.vue:300 ~ this.$http.get ~ response", response)
+          this.items = response.data.transactions
+        }, error => {
+          console.log("🚀 ~ file: GerenciarEstoque.vue:310 ~ this.$http.get ~ error", error)
+        })
+      },
+
+
 
     },
     computed: {
@@ -306,8 +330,21 @@
         })
         
         return items
+      },
+
+      currentUnit(){
+        // console.log('entrou',this.products)
+        let unit = ""
+        this.products.forEach(element => {
+          // console.log(element, this.form.product_id)
+          if(element.value == this.form.product_id) {
+            unit = element.unit
+          }
+        })
+        return unit
       }
     },
+
     created() {
       console.log(mydb)
       this.headers.forEach(element=> {
@@ -315,9 +352,17 @@
         this.simpleHeadersValue.push(element.value)
       })
 
-      mydb.produtos.forEach(element=>{
-        this.produtos.push(element['produto'])
+      this.get()
+
+      this.$http.get("products").then(response=>{
+        let products = response.data.products
+        products.forEach(element=> {
+          this.products.push({'text': element.description, 'value': element.id, 'unit': element.unit})
+        })
+      }, error => {
+        console.log("🚀 ~ file: GerenciarProducao.vue:364 ~ this.$http.get ~ error", error)
       })
+
       
     }
   }

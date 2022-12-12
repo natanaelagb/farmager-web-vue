@@ -42,7 +42,7 @@
           </template>
           <v-card>
             <v-card-title>
-              <span class="text-h5">{{editMod ? "Cadastrar" : "Atualizar"}} Produto</span>
+              <span class="text-h5">{{storeMod ? "Cadastrar" : "Atualizar"}} Produto</span>
             </v-card-title>
             <v-card-text>
               <v-container>
@@ -55,7 +55,7 @@
                   >
                     <v-text-field
                       label="Produto*"
-                      v-model="form.produto"
+                      v-model="form.description"
                       required
                     ></v-text-field>
                   </v-col>
@@ -67,7 +67,7 @@
                   >
                     <v-text-field
                       label="Estoque Atual*"
-                      v-model="form.quantidade"
+                      v-model="form.amount"
                       hint="10 Unidades"
                       required
                       type="number"
@@ -82,7 +82,7 @@
                   >
                     <v-autocomplete
                       label="Unidade*"
-                      v-model="form.unidade"
+                      v-model="form.unit"
                       :items="unidades"
                       hint="Litro"
                       required
@@ -98,7 +98,7 @@
                   >
                     <v-text-field
                       label="Preço Unitário"
-                      v-model="form.preco_unitario"
+                      v-model="form.unit_price"
                       type="number"
                       step="0.1"
                     ></v-text-field>
@@ -121,9 +121,9 @@
               <v-btn
                 color="primary"
                 text
-                @click="editMod ? cadastrar() : atualizar()"
+                @click="storeMod ? cadastrar() : atualizar()"
               >
-                {{editMod ? "Cadastar" : "Atualizar"}}
+                {{storeMod ? "Cadastar" : "Atualizar"}}
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -144,16 +144,16 @@
             {{props.item.id}}
           </td>
           <td class="text-start">
-            {{props.item.produto}}
+            {{props.item.description}}
           </td>
           <td class="text-start">
-            {{props.item.quantidade}}
+            {{props.item.amount}}
           </td>
           <td class="text-start">
-            {{props.item.unidade}}
+            {{props.item.unit}}
           </td>
           <td class="text-start">
-            {{props.item.preco_unitario}}
+            {{props.item.unit_price}}
           </td>
 
           <td>
@@ -183,7 +183,7 @@
       </template>
       </v-data-table>
 
-      <ConfirmDialog :dialog="callDialog" :id="dialogId" @confirm-event="deletar($event)"></ConfirmDialog>
+      <ConfirmDialog :dialog="dialogConfirm" :id="dialogId" @confirm-event="deletar($event)"></ConfirmDialog>
 
     </v-card>
 
@@ -203,91 +203,92 @@
     },
     data: ()=>{
       return {
-        unidades: [
-          {text:'Kg', value:'Kg'}, 
-          {text:'Litro', value:'Litro'}, 
-          {text:'Unidade', value:'Unidade'},
-        ],
         headers:[
           {text:'ID', value: 'id'},
-          {text:'Produto', value: 'produto'},
-          {text:'Estoque Atual', value: 'quantidade'},
-          {text:'Unidade', value: 'unidade'},
+          {text:'Produto', value: 'description'},
+          {text:'Estoque Atual', value: 'amount'},
+          {text:'Unidade', value: 'unit'},
           {text:'Preço Unitário', value: 'observacao'},
           {text:"Acoes"}
         ],
+        units: [],
         simpleHeadersText: [],
         simpleHeadersValue: [],
-        items: 
-          mydb.produtos
-        ,
+        items: [],
         form: {
           id:"",
-          produto:"",
-          quantidade:"",
-          unidade:"",
-          preco_unitario: "",
+          description:"",
+          amount:"",
+          unit:"",
+          unit_price: "",
         },
-        editMod: true,
+        storeMod: true,
         dialog: false,
-        currentId: 4, 
-        callDialog: false,
+        dialogConfirm: false,
         dialogId: 0,
       }
     },
     methods: {
       editar(element) {
-        this.editMod = false
+        this.storeMod = false
         
         this.form.id = element.id
-        this.form.produto = element.produto
-        this.form.quantidade = element.quantidade
-        this.form.unidade = element.unidade
-        this.form.preco_unitario = element.preco_unitario
+        this.form.description = element.description
+        this.form.amount = element.amount
+        this.form.unit = element.unit
+        this.form.unit_price = element.unit_price
 
         this.dialog = true
 
       },
       fechar() {
         this.dialog = false; 
-        this.editMod = true;
+        this.storeMod = true;
         this.form =  {
           id:"",
-          produto:"",
-          quantidade:"",
-          unidade:"",
-          preco_unitario: "",
+          description:"",
+          amount:"",
+          unit:"",
+          unit_price: "",
         }
       },
       atualizar() {
-        let id = this.form.id -1
-        console.log(this.items[id], this.form)
+        console.log(this.form)
+        this.$http.post("products/"+this.form.id+"/update",this.form).then(response => {
+          this.get()
+        }, error => {
+          console.log("🚀 ~ file: GerenciarEstoque.vue:264 ~ this.$http.post ~ error", error)
+        })
 
-        this.items[id].produto = this.form.produto
-        this.items[id].quantidade = this.form.quantidade
-        this.items[id].unidade = this.form.unidade
-        this.items[id].preco_unitario = this.form.preco_unitario
-
-        this.fechar()
+        this.fechar() 
 
       },
       cadastrar() {
-        let element = JSON.parse(JSON.stringify(this.form));
-        element.id = this.currentId + 1
-        this.items.push(element)
+        console.log(this.form)
+        this.$http.post("products", this.form).then(response => {
+            console.log("🚀 ~ file: GerenciarEstoque.vue:276 ~ this.$http.post ~ response", response)
+            this.items.push(response.data)
+        	}, error => {
+        	console.log("🚀 ~ file: GerenciarEstoque.vue:279 ~ this.$http.post ~ error", error)
+        	}
+        )
+
         this.fechar()
       },
       deletar($event) {
-
-        console.log(this.items[$event.id-1])
         if($event.value) {
-          this.items.splice($event.id-1, 1)
+          this.$http.delete('products/'+$event.id).then(response => {
+              this.items = response.data.products
+            },  error => {
+              console.log("🚀 ~ file: GerenciarEstoque.vue:287 ~ this.$http.delete ~ error", error)
+            }
+          )
         }
-        this.callDialog = false
+        this.dialogConfirm = false
       },
       confirmar(id) {
         this.dialogId = id
-        this.callDialog = true
+        this.dialogConfirm = true
       },
       exportarDados() {
         let dados = []
@@ -303,7 +304,15 @@
         console.log(dados)
 
         vm.$emit("ExportarPDF", "gerenciar_estoque",this.simpleHeadersText.slice(0,-1), dados)
-      }
+      },
+      get() {
+        this.$http.get('products').then(response => {
+          console.log("🚀 ~ file: GerenciarEstoque.vue:307 ~ this.$http.get ~ response", response)
+          this.items = response.data.products
+        }, error => {
+          console.log("🚀 ~ file: GerenciarEstoque.vue:310 ~ this.$http.get ~ error", error)
+        })
+      },
 
     },
     computed: {
@@ -314,6 +323,9 @@
         })
         
         return items
+      },
+      unidades() {
+        return window.DB_unidades;
       }
     },
     created() {
@@ -322,6 +334,8 @@
         this.simpleHeadersText.push(element.text)
         this.simpleHeadersValue.push(element.value)
       })
+
+      this.get()
       
     }
   }

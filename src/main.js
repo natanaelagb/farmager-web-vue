@@ -9,10 +9,11 @@ import moment from 'moment'
 import VueSession from 'vue-session'
 import axios from 'axios'
 import mydb from './store/fakeDB'
+import  DB_unidades  from './store/unidades'
 
 
 const $http = axios.create({
-  baseURL:"http://localhost:8081/farmager/api/public/",
+  baseURL:"http://localhost:8092/farmager/api/public/",
 })
 
 $http.interceptors.response.use( response => {
@@ -25,6 +26,7 @@ $http.interceptors.response.use( response => {
 })
 
 
+window.DB_unidades = DB_unidades
 window.mydb = mydb
 Vue.prototype.$moment = moment
 Vue.prototype.$http = $http

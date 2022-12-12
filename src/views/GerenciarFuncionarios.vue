@@ -42,7 +42,7 @@
           </template>
           <v-card>
             <v-card-title>
-              <span class="text-h5">{{editMod ? "Cadastrar" : "Atualizar"}} Animal</span>
+              <span class="text-h5">{{storeMod ? "Cadastrar" : "Atualizar"}} Usuário</span>
             </v-card-title>
             <v-card-text>
               <v-container>
@@ -54,7 +54,7 @@
                   >
                     <v-text-field
                       label="Nome*"
-                      v-model="form.nome"
+                      v-model="form.name"
                       hint="Fulano de Tal"
                       required
                     ></v-text-field>
@@ -75,13 +75,14 @@
                   </v-col>
 
                   <v-col
+                    v-if="storeMod"
                     cols="12"
                     sm="6"
                     md="6"
                   >
                     <v-text-field
                       label="Senha*"
-                      v-model="form.senha"
+                      v-model="form.password"
                       hint="admin"
                       required
                       type="password"
@@ -97,7 +98,7 @@
                   >
                     <v-select
                       label="Cargo*"
-                      v-model="form.cargo"
+                      v-model="form.occupation"
                       :items="cargos"
                       required
                     ></v-select>
@@ -110,13 +111,27 @@
                   >
                     <v-text-field
                       label="Salario"
-                      v-model="form.salario"
+                      v-model="form.salary"
                       hint="2000.00R$"
                       type="number"
                       step="0.1"
                       min="0"
                       required
                     ></v-text-field>
+                  </v-col>
+
+                  <v-col 
+                    cols="12"
+                    sm="6"
+                    md="6"
+                  >
+                    <v-select
+                      label="Privilégios"
+                      v-model="form.is_admin"
+                      hint="Admin"
+                      :items="[{text:'Master', value: 1},{text:'Normal', value: 0}]"
+                      required
+                    ></v-select>
                   </v-col>
                  
                  
@@ -137,16 +152,16 @@
               <v-btn
                 color="primary"
                 text
-                @click="editMod ? cadastrar() : atualizar()"
+                @click="storeMod ? cadastrar() : atualizar()"
               >
-                {{editMod ? "Cadastar" : "Atualizar"}}
+                {{storeMod ? "Cadastar" : "Atualizar"}}
               </v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
       </v-card-title>
 
-      <FiltrarBusca :headers="headers"  @exportar-dados="exportarDados"></FiltrarBusca>
+      <FiltrarBusca :headers="headers"  @exportar-dados="exportarDados" @filtrar-busca="filtrarBusca($event)" @limpar-busca="get()"></FiltrarBusca>
 
       <v-data-table
       :fixed-header="true"
@@ -160,16 +175,20 @@
             {{props.item.id}}
           </td>
           <td class="text-start">
-            {{props.item.nome}}
+            {{props.item.name}}
           </td>
           <td class="text-start">
             {{props.item.email}}
           </td>
           <td class="text-start">
-            {{props.item.cargo}}
+            {{props.item.occupation}}
           </td>
           <td class="text-start">
-            {{props.item.salario}}
+            {{props.item.salary}}
+          </td>
+
+          <td class="text-start">
+            {{props.item.is_admin ? "Master" : "Normal"}}
           </td>
 
           <td>
@@ -199,7 +218,8 @@
       </template>
       </v-data-table>
 
-      <ConfirmDialog :dialog="callDialog" :id="dialogId" @confirm-event="deletar($event)"></ConfirmDialog>
+      <ConfirmDialog :dialog="dialogConfirm" :id="dialogId" @confirm-event="deletar($event)"></ConfirmDialog>
+
 
     </v-card>
 
@@ -226,88 +246,99 @@
         ],
         headers:[
           {text:'Id', value: 'id'},
-          {text:'Nome', value: 'nome'},
+          {text:'Nome', value: 'name'},
           {text:'Email', value: 'email'},
-          {text:'Cargo', value: 'cargo'},
-          {text:'Salário', value: 'salario'},
+          {text:'Cargo', value: 'occupation'},
+          {text:'Salário', value: 'salary'},
+          {text:'Privilégios', value: 'is_admin'},
           {text:"Acoes"}
 
         ],
         simpleHeadersText: [],
         simpleHeadersValue: [],
-        items: 
-          mydb.usuarios
-        ,
+        items: [],
         form: {
           id:"",
-          nome:"",
+          name:"",
           email:"",
-          senha:"",
-          cargo: "",
-          salario: "",
+          password:"",
+          occupation: "",
+          salary: "",
+          is_admin:""
         },
-        editMod: true,
+        storeMod: true,
         dialog: false,
-        currentId: 3, 
-        callDialog: false,
+        dialogConfirm: false,
         dialogId: 0,
       }
     },
     methods: {
       editar(element) {
-        this.editMod = false
+        this.storeMod = false
         
         this.form.id = element.id
-        this.form.nome = element.nome
+        this.form.name = element.name
         this.form.email = element.email
-        this.form.senha = element.senha
-        this.form.cargo = element.cargo
-        this.form.salario = element.salario
+        this.form.occupation = element.occupation
+        this.form.salary = element.salary
+        this.form.is_admin = element.is_admin
 
         this.dialog = true
 
       },
       fechar() {
         this.dialog = false; 
-        this.editMod = true;
+        this.storeMod = true;
         this.form =  {
           id:"",
-          nome:"",
+          name:"",
           email:"",
-          senha:"",
-          cargo: "",
-          salario: "",
+          password:"",
+          occupation: "",
+          salary: "",
+          is_admin: ""
         }
       },
       atualizar() {
-        let id = this.form.id -1
-        console.log(this.items[id], this.form)
+        console.log(this.form)
+        this.form.is_admin = this.form.is_admin ? true : false
+        this.$http.post("users/"+this.form.id+"/update",this.form).then(response => {
+          this.get()
+        }, error => {
+          console.log("🚀 ~ file: GerenciarFuncionarios.vue:306 ~ this.$http.post ~ error", error)
+        })
 
-        this.items[id].nome = this.form.nome
-        this.items[id].email = this.form.email
-        this.items[id].senha = this.form.senha
-        this.items[id].cargo = this.form.cargo
-        this.items[id].salario = this.form.salario
-        this.fechar()   
+        this.fechar()  
 
       },
       cadastrar() {
-        let element = JSON.parse(JSON.stringify(this.form));
-        element.id = this.currentId + 1
-        this.items.push(element)
-        this.dialog = false
+        console.log(this.form)
+        this.form.is_admin = this.form.is_admin ? true : false
+        this.form.password = ""
+        this.$http.post("users", this.form).then(response => {
+            console.log("🚀 ~ file: GerenciarFuncionarios.vue:311 ~ this.$http.post ~ response", response)
+            this.items.push(response.data)
+        	}, error => {
+        	console.log("🚀 ~ file: GerenciarFuncionarios.vue:314 ~ this.$http.post ~ error", error)
+        	}
+        )
+
         this.fechar()
       },
       deletar($event) {
-        console.log(this.items[$event.id-1])
         if($event.value) {
-          this.items.splice($event.id-1, 1)
+          this.$http.delete('users/'+$event.id).then(response => {
+              this.items = response.data.users
+            },  error => {
+              console.log("🚀 ~ file: GerenciarFuncionarios.vue:332 ~ this.$http.delete ~ error", error)
+            }
+          )
         }
-        this.callDialog = false
+        this.dialogConfirm = false
       },
       confirmar(id) {
         this.dialogId = id
-        this.callDialog = true
+        this.dialogConfirm = true
       },
       exportarDados() {
         let dados = []
@@ -323,7 +354,25 @@
         console.log(dados)
 
         vm.$emit("ExportarPDF", "gerenciar_funcionarios",this.simpleHeadersText.slice(0,-1), dados)
-      }
+      },
+
+      filtrarBusca(event) {
+        this.$http.post("users-filter", event).then( response => {
+          this.items = response.data.users
+          console.log("🚀 ~ file: GerenciarAnimais.vue:441 ~ this.$http.post ~ response", response)  
+        }, error => {
+          console.log("🚀 ~ file: GerenciarAnimais.vue:443 ~ this.$http.post ~ error", error)
+        })
+      },
+
+      get() {
+        this.$http.get('users').then(response => {
+          console.log("🚀 ~ file: GerenciarFuncionarios.vue:327 ~ this.$http.get ~ response", response)
+          this.items = response.data.users
+        }, error => {
+          console.log("🚀 ~ file: GerenciarFuncionarios.vue:330 ~ this.$http.get ~ error", error)
+        })
+      },
 
     },
     created() {
@@ -332,6 +381,8 @@
         this.simpleHeadersText.push(element.text)
         this.simpleHeadersValue.push(element.value)
       })
+
+      this.get()
     }
   }
 </script>

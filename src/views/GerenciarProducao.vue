@@ -42,7 +42,7 @@
           </template>
           <v-card>
             <v-card-title>
-              <span class="text-h5">{{editMod ? "Cadastrar" : "Atualizar"}} Animal</span>
+              <span class="text-h5">{{storeMod ? "Cadastrar" : "Atualizar"}} Animal</span>
             </v-card-title>
             <v-card-text>
               <v-container>
@@ -54,8 +54,8 @@
                   >
                     <v-autocomplete
                       label="ID Animal*"
-                      v-model="form.id_animal"
-                      :items="animais_cadastrados"
+                      v-model="form.animal_id"
+                      :items="animals"
                       hint="Animal 1"
                       required
                     ></v-autocomplete>
@@ -69,8 +69,8 @@
                   >
                     <v-autocomplete
                       label="Produto*"
-                      v-model="form.produto"
-                      :items="produtos"
+                      v-model="form.product_id"
+                      :items="products"
                       required
                     ></v-autocomplete>
                   </v-col>
@@ -82,7 +82,7 @@
                   >
                     <v-text-field
                       label="Quantidade*"
-                      v-model="form.quantidade"
+                      v-model="form.amount"
                       hint="10 Unidades"
                       required
                       type="number"
@@ -95,14 +95,13 @@
                     sm="6"
                     md="6"
                   >
-                    <v-autocomplete
+                    <v-text-field
                       label="Unidade*"
-                      v-model="form.unidade"
-                      :items="unidades"
+                      v-model="currentUnit"
                       hint="Litro"
-                      required
+                      readonly
 
-                    ></v-autocomplete>
+                    ></v-text-field>
                   </v-col>
 
 
@@ -113,7 +112,7 @@
                   >
                     <v-textarea
                       label="Observação"
-                      v-model="form.observacao"
+                      v-model="form.description"
                     ></v-textarea>
                   </v-col>                 
                  
@@ -134,9 +133,9 @@
               <v-btn
                 color="primary"
                 text
-                @click="editMod ? cadastrar() : atualizar()"
+                @click="storeMod ? cadastrar() : atualizar()"
               >
-                {{editMod ? "Cadastar" : "Atualizar"}}
+                {{storeMod ? "Cadastar" : "Atualizar"}}
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -157,22 +156,22 @@
             {{props.item.id}}
           </td>
           <td class="text-start">
-            {{props.item.id_animal}}
+            {{props.item.animal_id}}
           </td>
           <td class="text-start">
-            {{props.item.produto}}
+            {{props.item.product.description}}
           </td>
           <td class="text-start">
-            {{props.item.quantidade}}
+            {{props.item.amount}}
           </td>
           <td class="text-start">
-            {{props.item.unidade}}
+            {{props.item.product.unit}}
           </td>
           <td class="text-start">
-            {{props.item.observacao}}
+            {{props.item.description}}
           </td>
           <td class="text-start">
-            {{props.item.criado_em}}
+            {{$moment(props.item.created_at).utc().format("DD/MM/YYYY HH:mm:ss")}}
           </td>
 
           <td>
@@ -202,7 +201,7 @@
       </template>
       </v-data-table>
 
-      <ConfirmDialog :dialog="callDialog" :id="dialogId" @confirm-event="deletar($event)"></ConfirmDialog>
+      <ConfirmDialog :dialog="dialogConfirm" :id="dialogId" @confirm-event="deletar($event)"></ConfirmDialog>
 
     </v-card>
 
@@ -222,97 +221,97 @@
     },
     data: ()=>{
       return {
-        unidades: [
-          {text:'Kg', value:'Kg'}, 
-          {text:'Litro', value:'Litro'}, 
-          {text:'Unidade', value:'Unidade'},
-        ],
-        produtos: [],
+        animals: [],
+        products: [],
         headers:[
           {text:'ID', value: 'id'},
-          {text:'ID Animal', value: 'id_animal'},
-          {text:'Produto', value: 'produto'},
-          {text:'Quantidade', value: 'quantidade'},
-          {text:'Unidade', value: 'unidade'},
-          {text:'Observações', value: 'observacao'},
-          {text:'Data', value: 'criado_em'},
+          {text:'ID Animal', value: 'animal_id'},
+          {text:'Produto', value: 'product_id'},
+          {text:'Quantidade', value: 'amount'},
+          {text:'Unidade', value: 'product.unit'},
+          {text:'Observações', value: 'description'},
+          {text:'Data', value: 'created_at'},
           {text:"Acoes"}
         ],
         simpleHeadersText: [],
         simpleHeadersValue: [],
-        items: 
-          mydb.produtos_hst
-        ,
+        items: [],
         form: {
           id:"",
-          id_animal:"",
-          quantidade:"",
-          unidade:"",
-          observacao: "",
-          criado_em: "",
+          animal_id:"",
+          product_id:"",
+          amount:"",
+          description: "",
         },
-        editMod: true,
+        storeMod: true,
         dialog: false,
         currentId: 5, 
-        callDialog: false,
+        dialogConfirm: false,
         dialogId: 0,
       }
     },
     methods: {
       editar(element) {
-        this.editMod = false
+        this.storeMod = false
         
         this.form.id = element.id
-        this.form.id_animal = element.id_animal
-        this.form.quantidade = element.quantidade
-        this.form.unidade = element.unidade
-        this.form.observacao = element.observacao
-        this.form.criado_em = element.criado_em
+        this.form.animal_id = element.animal_id
+        this.form.product_id = element.product_id
+        this.form.amount = element.amount
+        this.form.description = element.description
 
         this.dialog = true
 
       },
       fechar() {
         this.dialog = false; 
-        this.editMod = true;
+        this.storeMod = true;
         this.form =  {
           id:"",
-          id_animal:"",
-          quantidade:"",
-          unidade:"",
-          observacao: "",
-          criado_em: "",
+          animal_id:"",
+          product_id:"",
+          amount:"",
+          description: "",
         }
       },
       atualizar() {
-        let id = this.form.id -1
-        console.log(this.items[id], this.form)
+        console.log(this.form)
+        this.$http.post("productions/"+this.form.id+"/update",this.form).then(response => {
+          this.get()
+        }, error => {
+          console.log("🚀 ~ file: GerenciarProducao.vue:283 ~ this.$http.post ~ error", error)
+        })
 
-        this.items[id].id_animal = this.form.id_animal
-        this.items[id].quantidade = this.form.quantidade
-        this.items[id].unidade = this.form.unidade
-        this.items[id].observacao = this.form.observacao
-
-        this.fechar()
+        this.fechar() 
       },
       cadastrar() {
-        this.form.criado_em = (new Date()).toISOString()
-        let element = JSON.parse(JSON.stringify(this.form));
-        element.id = this.currentId + 1
-        this.items.push(element)
+        console.log(this.form)
+
+        this.$http.post("productions", this.form).then(response => {
+            console.log("🚀 ~ file: GerenciarProducao.vue:296 ~ this.$http.post ~ response", response)
+            this.items.push(response.data)
+        	}, error => {
+        	console.log("🚀 ~ file: GerenciarProducao.vue:299 ~ this.$http.post ~ error", error)
+        	}
+        )
+
         this.fechar()
       },
       deletar($event) {
 
-        console.log(this.items[$event.id-1])
         if($event.value) {
-          this.items.splice($event.id-1, 1)
+          this.$http.delete('productions/'+$event.id).then(response => {
+              this.items = response.data.productions
+            },  error => {
+              console.log("🚀 ~ file: GerenciarProducao.vue:307 ~ this.$http.delete ~ error", error)
+            }
+          )
         }
-        this.callDialog = false
+        this.dialogConfirm = false
       },
       confirmar(id) {
         this.dialogId = id
-        this.callDialog = true
+        this.dialogConfirm = true
       },
       exportarDados() {
         let dados = []
@@ -328,7 +327,16 @@
         console.log(dados)
 
         vm.$emit("ExportarPDF", "gerenciar_produtos",this.simpleHeadersText.slice(0,-1), dados)
-      }
+      },
+
+      get() {
+        this.$http.get('productions').then(response => {
+          console.log("🚀 ~ file: GerenciarProducao.vue:333 ~ this.$http.get ~ response", response)
+          this.items = response.data.productions
+        }, error => {
+          console.log("🚀 ~ file: GerenciarProducao.vue:336 ~ this.$http.get ~ error", error)
+        })
+      },
 
     },
     computed: {
@@ -339,6 +347,19 @@
         })
         
         return items
+      },
+
+      currentUnit(){
+        // console.log('entrou',this.products)
+        
+        let unit = ""
+        this.products.forEach(element => {
+          // console.log(element, this.form.product_id)
+          if(element.value == this.form.product_id) {
+            unit = element.unit
+          }
+        })
+        return unit
       }
     },
     created() {
@@ -348,10 +369,29 @@
         this.simpleHeadersValue.push(element.value)
       })
 
-      mydb.produtos.forEach(element=>{
-        this.produtos.push(element['produto'])
+      console.log(DB_unidades)
+
+      this.get()
+
+      this.$http.get("animals").then(response=>{
+        let animals = response.data.animals
+        animals.forEach(element=> {
+          this.animals.push(element.id)
+        })
+      }, error => {
+        console.log("🚀 ~ file: GerenciarProducao.vue:364 ~ this.$http.get ~ error", error)
       })
-      
+
+      this.$http.get("products").then(response=>{
+        let products = response.data.products
+        products.forEach(element=> {
+          this.products.push({'text': element.description, 'value': element.id, 'unit': element.unit})
+        })
+      }, error => {
+        console.log("🚀 ~ file: GerenciarProducao.vue:364 ~ this.$http.get ~ error", error)
+      })
+
+
     }
   }
 </script>

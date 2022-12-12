@@ -38,7 +38,7 @@
             </template>
             <v-card>
               <v-card-title>
-                <span class="text-h5">{{editMod ? "Cadastrar" : "Atualizar"}} Ocorrencia</span>
+                <span class="text-h5">{{storeMod ? "Cadastrar" : "Atualizar"}} Ocorrencia</span>
               </v-card-title>
               <v-card-text>
                 <v-container>
@@ -85,9 +85,9 @@
                 <v-btn
                   color="primary"
                   text
-                  @click="editMod ? cadastrar() : atualizar()"
+                  @click="storeMod ? cadastrar() : atualizar()"
                 >
-                  {{editMod ? "Cadastar" : "Atualizar"}}
+                  {{storeMod ? "Cadastar" : "Atualizar"}}
                 </v-btn>
               </v-card-actions>
             </v-card>
@@ -202,7 +202,7 @@
           created_at: "",
           user_id: ""
         },
-        editMod: true,
+        storeMod: true,
         dialog: false,
         currentId: 5, 
         callDialog: false,
@@ -235,7 +235,7 @@
         })
       },
       editar(element) {
-        this.editMod = false
+        this.storeMod = false
         
         this.form.id = element.id
         this.form.animal_id = element.animal_id
@@ -247,7 +247,7 @@
       },
       fechar() {
         this.dialog = false; 
-        this.editMod = true;
+        this.storeMod = true;
         this.form =  {
           animal_id:"",
           description:"",
