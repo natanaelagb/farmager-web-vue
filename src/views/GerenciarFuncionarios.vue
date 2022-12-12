@@ -302,6 +302,7 @@
       atualizar() {
         console.log(this.form)
         this.form.is_admin = this.form.is_admin ? true : false
+        this.form.password = ""
         this.$http.post("users/"+this.form.id+"/update",this.form).then(response => {
           this.get()
         }, error => {
@@ -314,7 +315,6 @@
       cadastrar() {
         console.log(this.form)
         this.form.is_admin = this.form.is_admin ? true : false
-        this.form.password = ""
         this.$http.post("users", this.form).then(response => {
             console.log("🚀 ~ file: GerenciarFuncionarios.vue:311 ~ this.$http.post ~ response", response)
             this.items.push(response.data)

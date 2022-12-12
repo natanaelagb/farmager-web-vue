@@ -13,7 +13,7 @@
           :ratio="ratio"
           :responsive-options="responsiveOptions"
           :type="type"
-          style="max-height: 150px;"
+          style="max-height: 200px;"
         />
       </div>
     </template>
@@ -69,7 +69,7 @@
       color: #999
 
     .v-card--material__sheet
-      max-height: 185px
+      max-height: 220px
       width: 100%
 
       .ct-label

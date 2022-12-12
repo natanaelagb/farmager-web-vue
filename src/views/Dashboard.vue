@@ -12,7 +12,7 @@
             :key="`chart-${i}`"
             cols="12"
             md="6"
-            lg="4"
+            lg="6"
           >
             <material-chart-card
               :color="chart.color"
@@ -47,14 +47,14 @@
       </v-col>
 
       <v-col
-        v-for="({ actionIcon, actionText, ...attrs }, i) in stats"
+        v-for="({ ...attrs }, i) in stats"
         :key="i"
         cols="12"
         md="6"
         lg="3"
       >
         <material-stat-card v-bind="attrs">
-          <template #actions>
+          <!-- <template #actions>
             <v-icon
               class="mr-2"
               small
@@ -63,7 +63,7 @@
             <div class="text-truncate">
               {{ actionText }}
             </div>
-          </template>
+          </template> -->
         </material-stat-card>
       </v-col>
 
@@ -72,24 +72,57 @@
         md="6"
       >
         <material-card
-          color="orange"
+          color="primary"
           full-header
         >
           <template #heading>
-            <div class="pa-8 white--text">
-              <div class="text-h4 font-weight-light">
-                Employees Stats
+            <div class="pa-8 white--text d-flex">
+              <v-icon
+                x-large
+                >
+                  mdi-barn
+              </v-icon>
+              <div class="text-h4 font-weight-light mt-3 ms-3" >
+               
+                Ultimos Recursos Produzidos
               </div>
-              <div class="text-caption">
+              <!-- <div class="text-caption">
                 New employees on 15th September, 2016
-              </div>
+              </div> -->
             </div>
           </template>
           <v-card-text>
             <v-data-table
-              :headers="headers"
-              :items="items"
-            />
+              :headers="headersProductions"
+              :items="itemsProductions"
+              sort-by="created_at"
+              sort-desc
+
+            >
+            <template #item="props">
+              <tr>
+                <td class="text-start">
+                  {{props.item.animal_id}}
+                </td>
+                <td class="text-start">
+                  {{props.item.product.description}}
+                </td>
+                <td class="text-start">
+                  {{props.item.amount}}
+                </td>
+                <td class="text-start">
+                  {{props.item.product.unit}}
+                </td>
+                <td class="text-start">
+                  {{props.item.description}}
+                </td>
+                <td class="text-start">
+                  {{$moment(props.item.created_at).utc().format("DD/MM/YYYY HH:mm:ss")}}
+                </td>
+              </tr>
+            </template>
+
+            </v-data-table>
           </v-card-text>
         </material-card>
       </v-col>
@@ -99,92 +132,55 @@
         md="6"
       >
         <material-card
-          color="accent"
+          color="red"
           full-header
         >
           <template #heading>
-            <v-tabs
-              v-model="tabs"
-              background-color="transparent"
-              slider-color="white"
-              class="pa-8"
-            >
-              <span
-                class="subheading font-weight-light mx-3"
-                style="align-self: center"
-              >Tasks:</span>
-              <v-tab class="mr-3">
-                <v-icon class="mr-2">
-                  mdi-bug
-                </v-icon>
-                Bugs
-              </v-tab>
-              <v-tab class="mr-3">
-                <v-icon class="mr-2">
-                  mdi-code-tags
-                </v-icon>
-                Website
-              </v-tab>
-              <v-tab>
-                <v-icon class="mr-2">
-                  mdi-cloud
-                </v-icon>
-                Server
-              </v-tab>
-            </v-tabs>
+            <div class="pa-8 d-flex">
+              <v-icon
+                x-large
+              >
+                  mdi-alert-octagon
+              </v-icon>
+              <div class="text-h4 font-weight-light mt-3 ms-3  white--text" >
+               
+                Últimas Ocorrências Relatadas
+              </div>
+              <!-- <div class="text-caption">
+                New employees on 15th September, 2016
+              </div> -->
+            </div>
           </template>
-          <v-tabs-items
-            v-model="tabs"
-            background-color="transparent"
-          >
-            <v-tab-item
-              v-for="n in 3"
-              :key="n"
+          <v-card-text>
+            <v-data-table
+              :headers="headersOcurrences"
+              :items="itemsOcurrences"
+              sort-by="created_at"
+              sort-desc
+
             >
-              <v-card-text>
-                <template v-for="(task, i) in tasks[tabs]">
-                  <v-row
-                    :key="i"
-                    align="center"
-                    class="flex-nowrap"
-                  >
-                    <v-col cols="1">
-                      <v-list-item-action>
-                        <v-simple-checkbox
-                          v-model="task.value"
-                          color="secondary"
-                        />
-                      </v-list-item-action>
-                    </v-col>
+            <template #item="props">
+              <tr>
+                <td class="text-start">
+                  {{props.item.animal_id}}
+                </td>
+                <td class="text-start">
+                  {{props.item.description}}
+                </td>
+                <td class="text-start">
+                  {{props.item.user.name}}
+                </td>
+                <td class="text-start">
+                  {{$moment(props.item.created_at).utc().format("DD/MM/YYYY HH:mm:ss")}}
+                </td>
+              </tr>
+            </template>
 
-                    <v-col
-                      class="font-weight-light"
-                      cols="8"
-                      v-text="task.text"
-                    />
-
-                    <v-col
-                      cols="auto"
-                      class="text-right"
-                    >
-                      <v-icon class="mx-1">
-                        mdi-pencil
-                      </v-icon>
-
-                      <v-icon
-                        class="mx-1"
-                        color="error"
-                      >
-                        mdi-close
-                      </v-icon>
-                    </v-col>
-                  </v-row>
-                </template>
-              </v-card-text>
-            </v-tab-item>
-          </v-tabs-items>
+            </v-data-table>
+          </v-card-text>
         </material-card>
       </v-col>
+
     </v-row>
   </v-container>
 </template>
@@ -205,13 +201,12 @@
       charts: [{
         type: 'Bar',
         color: 'primary',
-        title: 'Website Views',
-        subtitle: 'Last Campaign Performance',
-        time: 'updated 10 minutes ago',
+        title: 'Produções Semanal',
+        time: 'Atualizado 1 minuto atrás',
         data: {
-          labels: ['Ja', 'Fe', 'Ma', 'Ap', 'Mai', 'Ju', 'Jul', 'Au', 'Se', 'Oc', 'No', 'De'],
+          labels: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
           series: [
-            [542, 443, 320, 780, 553, 453, 326, 434, 568, 610, 756, 895],
+            [542, 443, 320, 780, 553, 453, 326],
           ],
         },
         options: {
@@ -240,13 +235,12 @@
       }, {
         type: 'Line',
         color: 'success',
-        title: 'Daily Sales',
-        subtitle: '<i class="mdi mdi-arrow-up green--text"></i><span class="green--text">55%</span>&nbsp;increase in today\'s sales',
-        time: 'updated 4 minutes ago',
+        title: 'Transações Semanal',
+        time: 'Atualizado 1 minuto atrás',
         data: {
-          labels: ['12am', '3pm', '6pm', '9pm', '12pm', '3am', '6am', '9am'],
+          labels: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
           series: [
-            [230, 750, 450, 300, 280, 240, 200, 190],
+            ['',230, 750, 450, 300, 280, 240],
           ],
         },
         options: {
@@ -260,183 +254,109 @@
             left: 0,
           },
         },
-      }, {
-        type: 'Line',
-        color: 'info',
-        title: 'Completed Tasks',
-        subtitle: 'Last Campaign Performance',
-        time: 'campaign sent 26 minutes ago',
-        data: {
-          labels: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
-          series: [
-            [12, 17, 7, 17, 23, 18, 38],
-          ],
-        },
-        options: {
-          lineSmooth,
-          low: 0,
-          high: 50, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
-          chartPadding: {
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0,
-          },
-        },
       }],
-      headers: [
-        {
-          sortable: false,
-          text: 'ID',
-          value: 'id',
-        },
-        {
-          sortable: false,
-          text: 'Name',
-          value: 'name',
-        },
-        {
-          sortable: false,
-          text: 'Salary',
-          value: 'salary',
-          align: 'right',
-        },
-        {
-          sortable: false,
-          text: 'Country',
-          value: 'country',
-          align: 'right',
-        },
-        {
-          sortable: false,
-          text: 'City',
-          value: 'city',
-          align: 'right',
-        },
+      headersProductions:[
+        {text:'ID Animal', value: 'animal_id'},
+        {text:'Produto', value: 'product_id'},
+        {text:'Quantidade', value: 'amount'},
+        {text:'Unidade', value: 'product.unit', sortable:false},
+        {text:'Observações', value: 'description', sortable:false, width:5},
+        {text:'Data', value: 'created_at'},
       ],
-      items: [
-        {
-          id: 1,
-          name: 'Dakota Rice',
-          country: 'Niger',
-          city: 'Oud-Tunrhout',
-          salary: '$35,738',
-        },
-        {
-          id: 2,
-          name: 'Minerva Hooper',
-          country: 'Curaçao',
-          city: 'Sinaai-Waas',
-          salary: '$23,738',
-        },
-        {
-          id: 3,
-          name: 'Sage Rodriguez',
-          country: 'Netherlands',
-          city: 'Overland Park',
-          salary: '$56,142',
-        },
-        {
-          id: 4,
-          name: 'Philip Chanley',
-          country: 'Korea, South',
-          city: 'Gloucester',
-          salary: '$38,735',
-        },
-        {
-          id: 5,
-          name: 'Doris Greene',
-          country: 'Malawi',
-          city: 'Feldkirchen in Kārnten',
-          salary: '$63,542',
-        },
+      headersOcurrences:[
+        {text:'ID Animal', value: 'animal_id'},
+        {text:'Ocorrência', value: 'description'},
+        {text:'Funcionário', value: 'user.name'},
+        {text:'Data', value: 'created_at'},
       ],
+      itemsProductions: [],
+      itemsOcurrences: [],
       stats: [
         {
-          actionIcon: 'mdi-alert',
-          actionText: 'Get More Space...',
           color: '#FD9A13',
-          icon: 'mdi-sofa-single',
-          title: 'Bookings',
-          value: '184',
+          icon: 'mdi-egg',
+          title: 'Estoque Ovos (unidade)',
+          value: '',
+          item: 'Ovo'
         },
         {
-          actionIcon: 'mdi-tag',
-          actionText: 'Tracked from Google Analytics',
           color: 'primary',
-          icon: 'mdi-chart-bar',
-          title: 'Website Visits',
-          value: '75.521',
+          icon: 'mdi-cow',
+          title: 'Estoque Leite (litro)',
+          value: '',
+          item: 'Leite'
         },
         {
-          actionIcon: 'mdi-calendar-range',
-          actionText: 'Last 24 Hours',
           color: 'success',
-          icon: 'mdi-store',
-          title: 'Revenue',
-          value: '$34,245',
+          icon: 'mdi-food-steak',
+          title: 'Estoque Carne (kg)',
+          value: '',
+          item: 'Carne'
         },
         {
-          actionIcon: 'mdi-history',
-          actionText: 'Just Updated',
-          color: 'info',
-          icon: 'mdi-twitter',
-          title: 'Followers',
-          value: '+245',
+          color: 'success',
+          icon: 'mdi-finance',
+          title: 'Finâncias (R$)',
+          value: '',
+          item: 'Finance'
         },
+
       ],
       tabs: 0,
-      tasks: {
-        0: [
-          {
-            text: 'Sign contract for "What are conference organizers afraid of?"',
-            value: true,
-          },
-          {
-            text: 'Lines From Great Russian Literature? Or E-mails From My Boss?',
-            value: false,
-          },
-          {
-            text: 'Flooded: One year later, assessing what was lost and what was found when a ravaging rain swept through metro Detroit',
-            value: false,
-          },
-          {
-            text: 'Create 4 Invisible User Experiences you Never Knew About',
-            value: true,
-          },
-        ],
-        1: [
-          {
-            text: 'Flooded: One year later, assessing what was lost and what was found when a ravaging rain swept through metro Detroit',
-            value: true,
-          },
-          {
-            text: 'Sign contract for "What are conference organizers afraid of?"',
-            value: false,
-          },
-        ],
-        2: [
-          {
-            text: 'Lines From Great Russian Literature? Or E-mails From My Boss?',
-            value: false,
-          },
-          {
-            text: 'Flooded: One year later, assessing what was lost and what was found when a ravaging rain swept through metro Detroit',
-            value: true,
-          },
-          {
-            text: 'Sign contract for "What are conference organizers afraid of?"',
-            value: true,
-          },
-        ],
-      },
     }),
 
     computed: {
-      sales: get('sales/sales'),
-      totalSales () {
-        return this.sales.reduce((acc, val) => acc + val.salesInM, 0)
-      },
+
     },
+
+    methods: {
+      getProductions() {
+        this.$http.get('productions-limit').then(response => {
+          console.log("🚀 ~ file: Dashboard.vue:365 ~ this.$http.get ~ response", response)
+          this.itemsProductions = response.data.productions
+        }, error => {
+        console.log("🚀 ~ file: Dashboard.vue:405 ~ this.$http.get ~ error", error)
+        })
+      },
+      getOcurrences() {
+        this.$http.get("animals-last-events").then(response => {
+          console.log("🚀 ~ file: Dashboard.vue:372 ~ this.$http.get ~ response", response)
+          this.itemsOcurrences = response.data.events
+        }, error => {
+          console.log("🚀 ~ file: Dashboard.vue:375 ~ this.$http.get ~ error", error)
+        })
+      },
+      getInventory() {
+        this.$http.get("products-inventory").then(response => {
+          let inventory = response.data.inventory
+          console.log("🚀 ~ file: Dashboard.vue:377 ~ this.$http.get ~ response", response)
+          this.stats.forEach((element, index) => {
+              element.value = String(inventory[element.item]);
+          })
+        }, error => {
+          console.log("🚀 ~ file: Dashboard.vue:380 ~ this.$http.get ~ error", error)
+        })
+      },
+      getDataProductions() {
+
+      },
+      getDataTransactions() {
+
+      }
+    },
+
+    created() {
+      this.getProductions()
+      this.getOcurrences()
+      this.getInventory()
+
+      setInterval(()=>{
+        if(this.$route.name == "Dashboard") {
+          this.getProductions()
+          this.getOcurrences()
+          this.getInventory()
+        }
+      },10000)
+    }
   }
 </script>

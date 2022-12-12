@@ -350,7 +350,6 @@
     methods: {
       editar(element) {
         this.storeMod = false
-        editMod
         this.form.id = element.id
         this.form.specie = element.specie
         this.form.breed = element.breed
